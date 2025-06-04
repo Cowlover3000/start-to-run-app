@@ -1,0 +1,51 @@
+{
+  "@@locale": "nl",
+  "appTitle": "Start naar Hardlopen",
+  "@appTitle": {
+    "description": "De titel van de applicatie"
+  },
+  "welcome": "Welkom bij Start naar Hardlopen",
+  "@welcome": {
+    "description": "Welkomstbericht voor nieuwe gebruikers"
+  },
+  "getStarted": "Begin",
+  "@getStarted": {
+    "description": "Knop tekst om te beginnen"
+  },
+  "home": "Home",
+  "@home": {
+    "description": "Home tab label"
+  },
+  "progress": "Voortgang",
+  "@progress": {
+    "description": "Progress tab label"
+  },
+  "settings": "Instellingen",
+  "@settings": {
+    "description": "Settings tab label"
+  },
+  "profile": "Profiel",
+  "@profile": {
+    "description": "Profile tab label"
+  },
+  "startWorkout": "Start Training",
+  "@startWorkout": {
+    "description": "Button to start a workout"
+  },
+  "myWorkouts": "Mijn Trainingen",
+  "@myWorkouts": {
+    "description": "Label for user's workouts"
+  },
+  "weeklyGoal": "Week Doel",
+  "@weeklyGoal": {
+    "description": "Weekly goal label"
+  },
+  "completed": "Voltooid",
+  "@completed": {
+    "description": "Completed status"
+  },
+  "inProgress": "Bezig",
+  "@inProgress": {
+    "description": "In progress status"
+  }
+}
