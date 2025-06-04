@@ -34,16 +34,6 @@ dependencies:
     sdk: flutter
   intl: any
   
-  # State management
-  provider: ^6.1.0
-  
-  # Local database for offline functionality
-  sqflite: ^2.3.0
-  path: ^1.8.3
-  
-  # JSON serialization
-  json_annotation: ^4.8.1
-  
   # UI components
   cupertino_icons: ^1.0.8
 
