@@ -76,6 +76,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
               Consumer<SettingsProvider>(
                 builder: (context, settingsProvider, child) {
                   return _buildSwitchTile(
+                    icon: Icons.vibration_outlined,
+                    title: 'Haptic feedback',
+                    subtitle: 'Trillingen voor segmentovergangen',
+                    value: settingsProvider.hapticFeedback,
+                    onChanged: (value) {
+                      settingsProvider.setHapticFeedback(value);
+                    },
+                  );
+                },
+              ),
+              Consumer<SettingsProvider>(
+                builder: (context, settingsProvider, child) {
+                  return _buildSwitchTile(
                     icon: Icons.notifications_outlined,
                     title: 'Trainingsherinneringen',
                     subtitle: 'Dagelijkse meldingen voor trainingen',

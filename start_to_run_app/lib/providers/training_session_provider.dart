@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 import '../models/training_program.dart';
+import '../services/feedback_service.dart';
 import 'training_data_provider.dart';
 
 enum SessionStatus {
@@ -17,6 +18,11 @@ class TrainingSessionProvider extends ChangeNotifier {
   int _currentSegmentElapsed = 0; // elapsed time in current segment
   Timer? _timer;
   TrainingDataProvider? _trainingDataProvider;
+  final FeedbackService _feedbackService = FeedbackService();
+  
+  // Track if we've already given warnings for current segment
+  bool _warningGiven = false;
+  bool _countdownStarted = false;
 
   // Getters
   int get currentWeek => _trainingDataProvider?.currentWeek ?? 1;
@@ -141,6 +147,7 @@ class TrainingSessionProvider extends ChangeNotifier {
     _elapsedTime = 0;
     _currentSegmentElapsed = 0;
     _currentSegmentIndex = 0;
+    _resetSegmentWarnings();
     _startTimer();
     notifyListeners();
   }
@@ -172,6 +179,9 @@ class TrainingSessionProvider extends ChangeNotifier {
     _sessionStatus = SessionStatus.completed;
     _stopTimer();
     
+    // Trigger completion feedback
+    _feedbackService.sessionCompletionFeedback();
+    
     // Mark the day as completed in the training data provider and advance to next day
     if (_trainingDataProvider != null) {
       _trainingDataProvider!.completeCurrentDay(); // This marks complete AND advances to next day
@@ -184,6 +194,11 @@ class TrainingSessionProvider extends ChangeNotifier {
     if (hasNextSegment) {
       _currentSegmentIndex++;
       _currentSegmentElapsed = 0;
+      _resetSegmentWarnings();
+      
+      // Trigger feedback for segment transition
+      _feedbackService.segmentTransitionFeedback();
+      
       notifyListeners();
     } else {
       completeSession();
@@ -194,6 +209,7 @@ class TrainingSessionProvider extends ChangeNotifier {
     if (hasPreviousSegment) {
       _currentSegmentIndex--;
       _currentSegmentElapsed = 0;
+      _resetSegmentWarnings();
       notifyListeners();
     }
   }
@@ -203,6 +219,9 @@ class TrainingSessionProvider extends ChangeNotifier {
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       _elapsedTime++;
       _currentSegmentElapsed++;
+      
+      // Check for feedback triggers
+      _checkForFeedbackTriggers();
       
       // Check if current segment is completed
       final segment = currentSegment;
@@ -228,13 +247,62 @@ class TrainingSessionProvider extends ChangeNotifier {
     _currentSegmentIndex = 0;
     _elapsedTime = 0;
     _currentSegmentElapsed = 0;
+    _resetSegmentWarnings();
     _stopTimer();
   }
   
   @override
   void dispose() {
     _stopTimer();
+    _feedbackService.dispose();
     super.dispose();
+  }
+  
+  // Private helper methods for feedback
+  void _checkForFeedbackTriggers() {
+    final segment = currentSegment;
+    if (segment == null) return;
+    
+    final remainingSeconds = segment.durationSeconds - _currentSegmentElapsed;
+    
+    // Give warning at 10 seconds remaining (only once per segment)
+    if (remainingSeconds == 10 && !_warningGiven) {
+      _warningGiven = true;
+      _feedbackService.segmentWarningFeedback();
+    }
+    
+    // Give countdown beeps for last 3 seconds (only once per second)
+    if (remainingSeconds <= 3 && remainingSeconds > 0 && !_countdownStarted) {
+      _countdownStarted = true;
+      _startCountdown();
+    }
+  }
+  
+  void _startCountdown() async {
+    final segment = currentSegment;
+    if (segment == null) return;
+    
+    // Beep for 3, 2, 1
+    for (int i = 3; i >= 1; i--) {
+      final remainingSeconds = segment.durationSeconds - _currentSegmentElapsed;
+      if (remainingSeconds == i) {
+        await _feedbackService.countdownFeedback();
+        await Future.delayed(const Duration(milliseconds: 800));
+      }
+    }
+  }
+  
+  void _resetSegmentWarnings() {
+    _warningGiven = false;
+    _countdownStarted = false;
+  }
+  
+  // Method to update feedback settings
+  void updateFeedbackSettings({required bool soundEnabled, required bool hapticEnabled}) {
+    _feedbackService.updateSettings(
+      soundEnabled: soundEnabled, 
+      hapticEnabled: hapticEnabled
+    );
   }
   
   // Helper methods
@@ -248,7 +316,7 @@ class TrainingSessionProvider extends ChangeNotifier {
     final segment = currentSegment;
     if (segment == null) return 'Rest Day';
     
-    final activityName = segment.activityType == ActivityType.running ? 'Hardlopen' : 'Wandelen';
+    final activityName = segment.type == ActivityType.running ? 'Hardlopen' : 'Wandelen';
     return '$activityName voor ${getFormattedTime(segment.durationSeconds)}';
   }
 }

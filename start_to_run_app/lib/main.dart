@@ -25,10 +25,14 @@ class StartToRunApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (context) => SettingsProvider()),
         ChangeNotifierProvider(create: (context) => TrainingDataProvider()),
-        ChangeNotifierProxyProvider<TrainingDataProvider, TrainingSessionProvider>(
+        ChangeNotifierProxyProvider2<TrainingDataProvider, SettingsProvider, TrainingSessionProvider>(
           create: (context) => TrainingSessionProvider(),
-          update: (context, trainingDataProvider, trainingSessionProvider) {
+          update: (context, trainingDataProvider, settingsProvider, trainingSessionProvider) {
             trainingSessionProvider?.setTrainingDataProvider(trainingDataProvider);
+            trainingSessionProvider?.updateFeedbackSettings(
+              soundEnabled: settingsProvider.soundSignals,
+              hapticEnabled: settingsProvider.hapticFeedback,
+            );
             return trainingSessionProvider!;
           },
         ),

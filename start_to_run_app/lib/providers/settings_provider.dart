@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../services/notification_service.dart';
+import '../services/feedback_service.dart';
 
 class SettingsProvider with ChangeNotifier {
   bool _soundSignals = true;
+  bool _hapticFeedback = true;
   bool _notifications = true;
   bool _trainingReminders = true;
   TimeOfDay _trainingReminderTime = const TimeOfDay(hour: 18, minute: 0); // 6:00 PM
@@ -13,6 +15,7 @@ class SettingsProvider with ChangeNotifier {
 
   // Notification service instance
   final NotificationService _notificationService = NotificationService();
+  final FeedbackService _feedbackService = FeedbackService();
 
   // Notification IDs
   static const int _trainingReminderNotificationId = 0;
@@ -20,6 +23,7 @@ class SettingsProvider with ChangeNotifier {
 
   // Getters
   bool get soundSignals => _soundSignals;
+  bool get hapticFeedback => _hapticFeedback;
   bool get notifications => _notifications;
   bool get trainingReminders => _trainingReminders;
   TimeOfDay get trainingReminderTime => _trainingReminderTime;
@@ -30,6 +34,7 @@ class SettingsProvider with ChangeNotifier {
   SettingsProvider() {
     _loadSettings();
     _initializeNotifications();
+    _initializeFeedbackService();
   }
 
   // Initialize notification service
@@ -38,10 +43,19 @@ class SettingsProvider with ChangeNotifier {
     await _notificationService.requestPermissions();
   }
 
+  // Initialize feedback service
+  Future<void> _initializeFeedbackService() async {
+    await _feedbackService.initialize(
+      soundEnabled: _soundSignals,
+      hapticEnabled: _hapticFeedback,
+    );
+  }
+
   // Load settings from SharedPreferences
   Future<void> _loadSettings() async {
     final prefs = await SharedPreferences.getInstance();
     _soundSignals = prefs.getBool('soundSignals') ?? true;
+    _hapticFeedback = prefs.getBool('hapticFeedback') ?? true;
     _notifications = prefs.getBool('notifications') ?? true;
     _trainingReminders = prefs.getBool('trainingReminders') ?? true;
     final reminderHour = prefs.getInt('trainingReminderHour') ?? 18;
@@ -73,6 +87,14 @@ class SettingsProvider with ChangeNotifier {
   void setSoundSignals(bool value) {
     _soundSignals = value;
     _saveSetting('soundSignals', value);
+    _updateFeedbackService();
+    notifyListeners();
+  }
+
+  void setHapticFeedback(bool value) {
+    _hapticFeedback = value;
+    _saveSetting('hapticFeedback', value);
+    _updateFeedbackService();
     notifyListeners();
   }
 
@@ -191,12 +213,17 @@ class SettingsProvider with ChangeNotifier {
 
     // Re-load default settings after clear
     _soundSignals = true;
+    _hapticFeedback = true;
     _notifications = true;
     _trainingReminders = true;
     _trainingReminderTime = const TimeOfDay(hour: 18, minute: 0);
     _restDayReminders = false;
     _units = 'Metrisch';
     _gpsTracking = false;
+    
+    // Update feedback service with default settings
+    _updateFeedbackService();
+    
     notifyListeners();
     
     // Save default settings again
@@ -206,6 +233,7 @@ class SettingsProvider with ChangeNotifier {
   Future<void> _saveSettingsToDefaults() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('soundSignals', _soundSignals);
+    await prefs.setBool('hapticFeedback', _hapticFeedback);
     await prefs.setBool('notifications', _notifications);
     await prefs.setBool('trainingReminders', _trainingReminders);
     await prefs.setInt('trainingReminderHour', _trainingReminderTime.hour);
@@ -213,6 +241,14 @@ class SettingsProvider with ChangeNotifier {
     await prefs.setBool('restDayReminders', _restDayReminders);
     await prefs.setString('units', _units);
     await prefs.setBool('gpsTracking', _gpsTracking);
+  }
+
+  // Update feedback service with current settings
+  void _updateFeedbackService() {
+    _feedbackService.updateSettings(
+      soundEnabled: _soundSignals,
+      hapticEnabled: _hapticFeedback,
+    );
   }
 
   // Format time for display

@@ -22,7 +22,7 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
         builder: (context, provider, child) {
           final currentDay = provider.currentDay;
           
-          if (currentDay.isRestDay) {
+          if (currentDay == null || currentDay.isRestDay) {
             return _buildRestDayView(context, provider);
           }
           
@@ -180,7 +180,7 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
     final segment = provider.currentSegment;
     if (segment == null) return const SizedBox.shrink();
     
-    final isRunning = segment.activityType == ActivityType.running;
+    final isRunning = segment.type == ActivityType.running;
     
     return Card(
       elevation: 4,
@@ -215,7 +215,7 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
                         ),
                       ),
                       Text(
-                        'Duration: ${provider.getFormattedTime(segment.duration)}',
+                        'Duration: ${provider.getFormattedTime(segment.durationSeconds)}',
                         style: Theme.of(context).textTheme.bodyLarge,
                       ),
                     ],
@@ -257,7 +257,7 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
               style: Theme.of(context).textTheme.titleMedium,
             ),
             Text(
-              '${provider.currentSegmentIndex + 1} / ${provider.currentDay.segments?.length ?? 0}',
+              '${provider.currentSegmentIndex + 1} / ${provider.currentDay?.segments?.length ?? 0}',
               style: Theme.of(context).textTheme.bodyMedium,
             ),
           ],
@@ -364,12 +364,12 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
                     Icon(
                       isCompleted 
                         ? Icons.check_circle
-                        : segment.activityType == ActivityType.running
+                        : segment.type == ActivityType.running
                           ? Icons.directions_run
                           : Icons.directions_walk,
                       color: isCompleted
                         ? Theme.of(context).colorScheme.secondary
-                        : segment.activityType == ActivityType.running
+                        : segment.type == ActivityType.running
                           ? Theme.of(context).colorScheme.primary
                           : Theme.of(context).colorScheme.secondary,
                       size: 20,
@@ -377,7 +377,7 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
                     const SizedBox(width: 12),
                     Expanded(
                       child: Text(
-                        '${index + 1}. ${segment.activityType == ActivityType.running ? 'Run' : 'Walk'} for ${provider.getFormattedTime(segment.duration)}',
+                        '${index + 1}. ${segment.type == ActivityType.running ? 'Run' : 'Walk'} for ${provider.getFormattedTime(segment.durationSeconds)}',
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           fontWeight: isCurrentSegment ? FontWeight.bold : null,
                           color: isCurrentSegment 

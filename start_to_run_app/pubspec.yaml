@@ -38,6 +38,12 @@ dependencies:
   
   # Location services for GPS tracking during runs
   geolocator: ^12.0.0
+  
+  # Audio playback for sound cues
+  audioplayers: ^6.0.0
+  
+  # Haptic feedback for vibration cues
+  vibration: ^2.0.0
 
 dev_dependencies:
   flutter_test:
@@ -62,9 +68,8 @@ flutter:
   uses-material-design: true
 
   # To add assets to your application, add an assets section, like this:
-  # assets:
-  #   - images/a_dot_burr.jpeg
-  #   - images/a_dot_ham.jpeg
+  assets:
+    - assets/sounds/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
