@@ -31,48 +31,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
       body: ListView(
         padding: const EdgeInsets.all(20.0),
         children: [
-          // User Profile Section
-          _buildSection(
-            title: 'Profiel',
-            children: [
-              _buildSettingsTile(
-                icon: Icons.person_outline,
-                title: 'Persoonlijke gegevens',
-                subtitle: 'Naam, leeftijd, gewicht bewerken',
-                onTap: () {
-                  // TODO: Navigate to profile screen
-                },
-              ),
-              _buildSettingsTile(
-                icon: Icons.fitness_center,
-                title: 'Trainingsdoelen',
-                subtitle: 'Stel je loopafstand en tempo in',
-                onTap: () {
-                  // TODO: Navigate to goals screen
-                },
-              ),
-            ],
-          ),
-          
-          const SizedBox(height: 24),
-          
           // Training Settings Section
           _buildSection(
             title: 'Training',
             children: [
-              Consumer<SettingsProvider>(
-                builder: (context, settingsProvider, child) {
-                  return _buildSwitchTile(
-                    icon: Icons.volume_up_outlined,
-                    title: 'Audio coaching',
-                    subtitle: 'Ontvang spraakbegeleiding tijdens training',
-                    value: settingsProvider.soundSignals,
-                    onChanged: (value) {
-                      settingsProvider.setSoundSignals(value);
-                    },
-                  );
-                },
-              ),
               Consumer<SettingsProvider>(
                 builder: (context, settingsProvider, child) {
                   return _buildSwitchTile(
@@ -111,30 +73,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   );
                 },
               ),
-              Consumer<SettingsProvider>(
-                builder: (context, settingsProvider, child) {
-                  return _buildSwitchTile(
-                    icon: Icons.location_on_outlined,
-                    title: 'GPS tracking',
-                    subtitle: 'Volg je route en afstand',
-                    value: settingsProvider.gpsTracking,
-                    onChanged: (value) {
-                      settingsProvider.setGpsTracking(value);
-                    },
-                  );
-                },
-              ),
-              Consumer<SettingsProvider>(
-                builder: (context, settingsProvider, child) {
-                  return _buildSettingsTile(
-                    icon: Icons.straighten_outlined,
-                    title: 'Meeteenheid',
-                    subtitle: settingsProvider.units,
-                    trailing: const Icon(Icons.chevron_right),
-                    onTap: () => _showUnitsDialog(context),
-                  );
-                },
-              ),
             ],
           ),
           
@@ -151,24 +89,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 trailing: const Icon(Icons.chevron_right),
                 onTap: () {
                   // TODO: Navigate to language selection
-                },
-              ),
-              _buildSettingsTile(
-                icon: Icons.backup_outlined,
-                title: 'Data backup',
-                subtitle: 'Synchroniseer je voortgang',
-                trailing: const Icon(Icons.chevron_right),
-                onTap: () {
-                  // TODO: Navigate to backup settings
-                },
-              ),
-              _buildSettingsTile(
-                icon: Icons.help_outline,
-                title: 'Help & Ondersteuning',
-                subtitle: 'Veelgestelde vragen en contact',
-                trailing: const Icon(Icons.chevron_right),
-                onTap: () {
-                  // TODO: Navigate to help screen
                 },
               ),
             ],
@@ -431,53 +351,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
     if (picked != null) {
       settingsProvider.setTrainingReminderTime(picked);
     }
-  }
-
-  void _showUnitsDialog(BuildContext context) {
-    final settingsProvider = Provider.of<SettingsProvider>(context, listen: false);
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Meeteenheid'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              RadioListTile<String>(
-                title: const Text('Metrisch (km, m)'),
-                value: 'Metrisch',
-                groupValue: settingsProvider.units,
-                onChanged: (value) {
-                  if (value != null) {
-                    settingsProvider.setUnits(value);
-                    Navigator.of(context).pop();
-                  }
-                },
-                activeColor: const Color(0xFF4CAF50),
-              ),
-              RadioListTile<String>(
-                title: const Text('Imperiaal (mi, ft)'),
-                value: 'Imperiaal',
-                groupValue: settingsProvider.units,
-                onChanged: (value) {
-                  if (value != null) {
-                    settingsProvider.setUnits(value);
-                    Navigator.of(context).pop();
-                  }
-                },
-                activeColor: const Color(0xFF4CAF50),
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Sluiten'),
-            ),
-          ],
-        );
-      },
-    );
   }
 
   void _showResetProgressDialog(BuildContext context) {
