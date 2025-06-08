@@ -8,16 +8,22 @@ class NotificationService {
       FlutterLocalNotificationsPlugin();
 
   Future<void> init() async {
+    // Initialize timezones
     tz.initializeTimeZones();
+    
+    // Set the local location for Netherlands/Belgium
     try {
       tz.setLocalLocation(tz.getLocation('Europe/Brussels'));
     } catch (e) {
+      // Fallback to UTC if timezone not found
       tz.setLocalLocation(tz.getLocation('UTC'));
     }
 
+    // Android initialization settings
     const AndroidInitializationSettings initializationSettingsAndroid =
         AndroidInitializationSettings('@mipmap/ic_launcher');
 
+    // iOS initialization settings  
     const DarwinInitializationSettings initializationSettingsIOS =
         DarwinInitializationSettings(
       requestAlertPermission: true,
@@ -35,13 +41,17 @@ class NotificationService {
       initializationSettings,
       onDidReceiveNotificationResponse: (NotificationResponse response) async {
         debugPrint('Notification tapped: ${response.payload}');
+        // Handle notification tap - could navigate to specific screen
       },
     );
 
+    // Request permissions for Android 13+ and iOS
     await requestPermissions();
+    
     debugPrint('Notification service initialized successfully');
   }
 
+  // Schedule a daily training reminder notification
   Future<void> scheduleDailyTrainingReminder({
     required int id,
     required TimeOfDay time,
@@ -73,10 +83,11 @@ class NotificationService {
       androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
       uiLocalNotificationDateInterpretation: 
           UILocalNotificationDateInterpretation.absoluteTime,
-      matchDateTimeComponents: DateTimeComponents.time,
+      matchDateTimeComponents: DateTimeComponents.time, // Repeat daily
     );
   }
 
+  // Schedule a rest day reminder notification
   Future<void> scheduleDailyRestDayReminder({
     required int id,
     required TimeOfDay time,
@@ -108,10 +119,11 @@ class NotificationService {
       androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
       uiLocalNotificationDateInterpretation: 
           UILocalNotificationDateInterpretation.absoluteTime,
-      matchDateTimeComponents: DateTimeComponents.time,
+      matchDateTimeComponents: DateTimeComponents.time, // Repeat daily
     );
   }
 
+  // Helper to calculate next instance of a specific time
   tz.TZDateTime _nextInstanceOfTime(TimeOfDay time) {
     final tz.TZDateTime now = tz.TZDateTime.now(tz.local);
     tz.TZDateTime scheduledDate = tz.TZDateTime(
@@ -123,25 +135,31 @@ class NotificationService {
       time.minute,
     );
     
+    // If the scheduled time has already passed today, schedule for tomorrow
     if (scheduledDate.isBefore(now)) {
       scheduledDate = scheduledDate.add(const Duration(days: 1));
     }
     return scheduledDate;
   }
 
+  // Cancel a specific notification by ID
   Future<void> cancelNotification(int id) async {
     await flutterLocalNotificationsPlugin.cancel(id);
   }
 
+  // Cancel all pending notifications
   Future<void> cancelAllNotifications() async {
     await flutterLocalNotificationsPlugin.cancelAll();
   }
 
+  // Get list of pending notifications (useful for debugging)
   Future<List<PendingNotificationRequest>> getPendingNotifications() async {
     return await flutterLocalNotificationsPlugin.pendingNotificationRequests();
   }
 
+  // Request notification permissions (required for Android 13+ and iOS)
   Future<bool?> requestPermissions() async {
+    // For iOS
     final iosImplementation = flutterLocalNotificationsPlugin
         .resolvePlatformSpecificImplementation<
             IOSFlutterLocalNotificationsPlugin>();
@@ -153,6 +171,7 @@ class NotificationService {
       );
     }
     
+    // For Android 13+
     final androidImplementation = flutterLocalNotificationsPlugin
         .resolvePlatformSpecificImplementation<
             AndroidFlutterLocalNotificationsPlugin>();
@@ -163,6 +182,7 @@ class NotificationService {
     return null;
   }
 
+  // Check if notifications are enabled
   Future<bool?> areNotificationsEnabled() async {
     final androidImplementation = flutterLocalNotificationsPlugin
         .resolvePlatformSpecificImplementation<
@@ -173,9 +193,10 @@ class NotificationService {
     return null;
   }
 
+  // Show an immediate test notification
   Future<void> showTestNotification() async {
     await flutterLocalNotificationsPlugin.show(
-      999,
+      999, // Test notification ID
       'Test Notification',
       'Dit is een test notificatie van je Start to Run app!',
       const NotificationDetails(
