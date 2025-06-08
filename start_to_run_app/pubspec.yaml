@@ -27,6 +27,9 @@ dependencies:
   # State management solution for managing app state
   provider: ^6.0.5
   
+  # Data persistence for user preferences and settings
+  shared_preferences: ^2.2.3
+  
   # Local notifications for reminders and training alerts
   flutter_local_notifications: ^17.0.0
   

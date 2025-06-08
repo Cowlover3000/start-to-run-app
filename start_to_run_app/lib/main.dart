@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'providers/training_session_provider.dart';
 import 'providers/training_data_provider.dart';
+import 'providers/settings_provider.dart';
 import 'screens/main_screen.dart';
 // TODO: Uncomment these imports when implementing additional features
 // import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -18,6 +19,7 @@ class StartToRunApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
+        ChangeNotifierProvider(create: (context) => SettingsProvider()),
         ChangeNotifierProvider(create: (context) => TrainingDataProvider()),
         ChangeNotifierProxyProvider<TrainingDataProvider, TrainingSessionProvider>(
           create: (context) => TrainingSessionProvider(),
