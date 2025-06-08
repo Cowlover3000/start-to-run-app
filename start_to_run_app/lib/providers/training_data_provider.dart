@@ -6,7 +6,10 @@ class TrainingDataProvider extends ChangeNotifier {
   int _currentWeek = 1;
   int _currentDay = 1;
   int _completedTrainingDays = 0;
-  List<bool> _completedDays = List.filled(70, false); // 70 total days (10 weeks * 7 days)
+  List<bool> _completedDays = List.filled(
+    70,
+    false,
+  ); // 70 total days (10 weeks * 7 days)
 
   // Getters
   int get currentWeek => _currentWeek;
@@ -66,9 +69,9 @@ class TrainingDataProvider extends ChangeNotifier {
 
   /// Get the total number of training days in current week
   int get totalTrainingDaysThisWeek {
-    return TrainingProgram.getWeek(_currentWeek)
-        .where((day) => day.isTrainingDay)
-        .length;
+    return TrainingProgram.getWeek(
+      _currentWeek,
+    ).where((day) => day.isTrainingDay).length;
   }
 
   /// Helper method to convert week/day to array index
@@ -88,13 +91,13 @@ class TrainingDataProvider extends ChangeNotifier {
     final dayIndex = getDayIndex(week, day);
     if (dayIndex < _completedDays.length && !_completedDays[dayIndex]) {
       _completedDays[dayIndex] = true;
-      
+
       // If it's a training day, increment the counter
       final trainingDay = TrainingProgram.getDay(week, day);
       if (trainingDay != null && trainingDay.isTrainingDay) {
         _completedTrainingDays++;
       }
-      
+
       notifyListeners();
     }
   }
@@ -165,9 +168,11 @@ class TrainingDataProvider extends ChangeNotifier {
   /// Get stats for the progress screen
   Map<String, dynamic> getProgressStats() {
     final totalDaysInProgram = 70;
-    final totalDaysCompleted = _completedDays.where((completed) => completed).length;
+    final totalDaysCompleted = _completedDays
+        .where((completed) => completed)
+        .length;
     final totalTrainingDaysInProgram = TrainingProgram.totalTrainingDays;
-    
+
     // Calculate current streak
     int currentStreak = 0;
     for (int i = getDayIndex(_currentWeek, _currentDay) - 1; i >= 0; i--) {
@@ -207,12 +212,12 @@ class TrainingDataProvider extends ChangeNotifier {
   String getDutchDayName(int dayNumber) {
     const dayNames = [
       'Maandag',
-      'Dinsdag', 
+      'Dinsdag',
       'Woensdag',
       'Donderdag',
       'Vrijdag',
       'Zaterdag',
-      'Zondag'
+      'Zondag',
     ];
     return dayNames[dayNumber - 1];
   }

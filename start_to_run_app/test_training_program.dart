@@ -16,12 +16,14 @@ void main() {
     print('  Description: ${week1day1.description}');
     print('  Total duration: ${week1day1.totalDurationMinutes} minutes');
     print('  Number of segments: ${week1day1.segments?.length ?? 0}');
-    
+
     if (week1day1.segments != null) {
       print('  Segments:');
       for (int i = 0; i < week1day1.segments!.length; i++) {
         final segment = week1day1.segments![i];
-        print('    ${i + 1}. ${segment.type.name}: ${segment.durationMinutes} min');
+        print(
+          '    ${i + 1}. ${segment.type.name}: ${segment.durationMinutes} min',
+        );
       }
     }
     print('');
@@ -35,12 +37,14 @@ void main() {
     print('  Description: ${week10day1.description}');
     print('  Total duration: ${week10day1.totalDurationMinutes} minutes');
     print('  Number of segments: ${week10day1.segments?.length ?? 0}');
-    
+
     if (week10day1.segments != null) {
       print('  Segments:');
       for (int i = 0; i < week10day1.segments!.length; i++) {
         final segment = week10day1.segments![i];
-        print('    ${i + 1}. ${segment.type.name}: ${segment.durationMinutes} min');
+        print(
+          '    ${i + 1}. ${segment.type.name}: ${segment.durationMinutes} min',
+        );
       }
     }
     print('');

@@ -6,7 +6,7 @@ import '../models/training_program_new.dart';
 
 class ActiveTrainingScreen extends StatefulWidget {
   final VoidCallback? onStopTraining;
-  
+
   const ActiveTrainingScreen({super.key, this.onStopTraining});
 
   @override
@@ -26,7 +26,7 @@ class _ActiveTrainingScreenState extends State<ActiveTrainingScreen> {
         }
 
         final currentTrainingDay = trainingData.currentTrainingDay;
-        
+
         // If there's no training day or it's a rest day, show a message
         if (currentTrainingDay == null || !currentTrainingDay.isTrainingDay) {
           return Scaffold(
@@ -52,7 +52,8 @@ class _ActiveTrainingScreenState extends State<ActiveTrainingScreen> {
                     ),
                     const SizedBox(height: 16),
                     Text(
-                      currentTrainingDay?.description ?? 'Neem een welverdiende pauze!',
+                      currentTrainingDay?.description ??
+                          'Neem een welverdiende pauze!',
                       style: const TextStyle(
                         color: Colors.white70,
                         fontSize: 16,
@@ -67,7 +68,10 @@ class _ActiveTrainingScreenState extends State<ActiveTrainingScreen> {
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.white,
                         foregroundColor: const Color(0xFF4A90E2),
-                        padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 32,
+                          vertical: 16,
+                        ),
                       ),
                       child: const Text('Terug naar Home'),
                     ),
@@ -80,18 +84,20 @@ class _ActiveTrainingScreenState extends State<ActiveTrainingScreen> {
 
         final segments = currentTrainingDay.segments ?? [];
         final currentSegmentIndex = sessionProvider.currentSegmentIndex;
-        final currentSegment = currentSegmentIndex < segments.length 
-            ? segments[currentSegmentIndex] 
+        final currentSegment = currentSegmentIndex < segments.length
+            ? segments[currentSegmentIndex]
             : null;
-        
+
         // Calculate next segment
         final nextSegmentIndex = currentSegmentIndex + 1;
-        final nextSegment = nextSegmentIndex < segments.length 
-            ? segments[nextSegmentIndex] 
+        final nextSegment = nextSegmentIndex < segments.length
+            ? segments[nextSegmentIndex]
             : null;
 
         return Scaffold(
-          backgroundColor: const Color(0xFF4A90E2), // Blue background matching UX design
+          backgroundColor: const Color(
+            0xFF4A90E2,
+          ), // Blue background matching UX design
           body: SafeArea(
             child: Padding(
               padding: const EdgeInsets.all(20.0),
@@ -120,7 +126,7 @@ class _ActiveTrainingScreenState extends State<ActiveTrainingScreen> {
                       ),
                     ],
                   ),
-                  
+
                   // Current Activity and Timer Section
                   Expanded(
                     child: Column(
@@ -140,16 +146,16 @@ class _ActiveTrainingScreenState extends State<ActiveTrainingScreen> {
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               Icon(
-                                currentSegment?.type == ActivityType.running 
-                                    ? Icons.directions_run 
+                                currentSegment?.type == ActivityType.running
+                                    ? Icons.directions_run
                                     : Icons.directions_walk,
                                 color: Colors.white,
                                 size: 24,
                               ),
                               const SizedBox(width: 12),
                               Text(
-                                currentSegment?.type == ActivityType.running 
-                                    ? 'HARDLOPEN' 
+                                currentSegment?.type == ActivityType.running
+                                    ? 'HARDLOPEN'
                                     : 'WANDELEN',
                                 style: const TextStyle(
                                   color: Colors.white,
@@ -161,12 +167,14 @@ class _ActiveTrainingScreenState extends State<ActiveTrainingScreen> {
                             ],
                           ),
                         ),
-                        
+
                         const SizedBox(height: 40),
-                        
+
                         // Main Timer Display
                         Text(
-                          _formatTime(sessionProvider.currentSegmentRemainingTime),
+                          _formatTime(
+                            sessionProvider.currentSegmentRemainingTime,
+                          ),
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 80,
@@ -174,11 +182,11 @@ class _ActiveTrainingScreenState extends State<ActiveTrainingScreen> {
                             height: 1.0,
                           ),
                         ),
-                        
+
                         const SizedBox(height: 24),
-                        
+
                         // Next Activity Info
-                        if (nextSegment != null) 
+                        if (nextSegment != null)
                           Text(
                             'Daarna: ${nextSegment.type == ActivityType.running ? 'Hardlopen' : 'Wandelen'} (${nextSegment.durationMinutes} minuten)',
                             style: const TextStyle(
@@ -199,7 +207,7 @@ class _ActiveTrainingScreenState extends State<ActiveTrainingScreen> {
                       ],
                     ),
                   ),
-                  
+
                   // Bottom Section - Time Info and Controls
                   Column(
                     children: [
@@ -249,9 +257,9 @@ class _ActiveTrainingScreenState extends State<ActiveTrainingScreen> {
                           ),
                         ],
                       ),
-                      
+
                       const SizedBox(height: 40),
-                      
+
                       // Control Buttons
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -291,14 +299,18 @@ class _ActiveTrainingScreenState extends State<ActiveTrainingScreen> {
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   Icon(
-                                    sessionProvider.isRunning ? Icons.pause : Icons.play_arrow,
+                                    sessionProvider.isRunning
+                                        ? Icons.pause
+                                        : Icons.play_arrow,
                                     color: Colors.white,
                                     size: 20,
                                   ),
                                   const SizedBox(width: 4),
                                   Flexible(
                                     child: Text(
-                                      sessionProvider.isRunning ? 'Pauze' : 'Hervat',
+                                      sessionProvider.isRunning
+                                          ? 'Pauze'
+                                          : 'Hervat',
                                       style: const TextStyle(
                                         color: Colors.white,
                                         fontSize: 12,
@@ -310,7 +322,7 @@ class _ActiveTrainingScreenState extends State<ActiveTrainingScreen> {
                               ),
                             ),
                           ),
-                          
+
                           // Stop Button
                           Container(
                             width: 120,
@@ -365,7 +377,7 @@ class _ActiveTrainingScreenState extends State<ActiveTrainingScreen> {
                           ),
                         ],
                       ),
-                      
+
                       const SizedBox(height: 20),
                     ],
                   ),
@@ -384,7 +396,11 @@ class _ActiveTrainingScreenState extends State<ActiveTrainingScreen> {
     return '${minutes.toString().padLeft(2, '0')}:${remainingSeconds.toString().padLeft(2, '0')}';
   }
 
-  void _showCompletionDialog(BuildContext context, TrainingDataProvider trainingData, TrainingSessionProvider sessionProvider) {
+  void _showCompletionDialog(
+    BuildContext context,
+    TrainingDataProvider trainingData,
+    TrainingSessionProvider sessionProvider,
+  ) {
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -407,14 +423,10 @@ class _ActiveTrainingScreenState extends State<ActiveTrainingScreen> {
                     color: Color(0xFF4CAF50),
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(
-                    Icons.check,
-                    color: Colors.white,
-                    size: 40,
-                  ),
+                  child: const Icon(Icons.check, color: Colors.white, size: 40),
                 ),
                 const SizedBox(height: 24),
-                
+
                 // Congratulations Message
                 const Text(
                   'Gefeliciteerd!',
@@ -425,20 +437,20 @@ class _ActiveTrainingScreenState extends State<ActiveTrainingScreen> {
                   ),
                 ),
                 const SizedBox(height: 8),
-                
+
                 Text(
                   'Je hebt Week ${trainingData.currentWeek}, Dag ${trainingData.currentDay} voltooid!',
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.grey.shade600,
-                  ),
+                  style: TextStyle(fontSize: 16, color: Colors.grey.shade600),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 16),
-                
+
                 // Training Time
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 12,
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.grey.shade100,
                     borderRadius: BorderRadius.circular(12),
@@ -464,17 +476,14 @@ class _ActiveTrainingScreenState extends State<ActiveTrainingScreen> {
                   ),
                 ),
                 const SizedBox(height: 24),
-                
+
                 // Progress Info
                 Text(
                   'Je voortgang is opgeslagen!',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey.shade600,
-                  ),
+                  style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
                 ),
                 const SizedBox(height: 24),
-                
+
                 // Continue Button
                 SizedBox(
                   width: double.infinity,

@@ -21,18 +21,21 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
       body: Consumer<TrainingSessionProvider>(
         builder: (context, provider, child) {
           final currentDay = provider.currentDay;
-          
+
           if (currentDay == null || currentDay.isRestDay) {
             return _buildRestDayView(context, provider);
           }
-          
+
           return _buildTrainingDayView(context, provider, currentDay);
         },
       ),
     );
   }
-  
-  Widget _buildRestDayView(BuildContext context, TrainingSessionProvider provider) {
+
+  Widget _buildRestDayView(
+    BuildContext context,
+    TrainingSessionProvider provider,
+  ) {
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(24.0),
@@ -47,9 +50,9 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
             const SizedBox(height: 24),
             Text(
               'Rest Day',
-              style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
             Text(
@@ -71,8 +74,12 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
       ),
     );
   }
-  
-  Widget _buildTrainingDayView(BuildContext context, TrainingSessionProvider provider, TrainingDay day) {
+
+  Widget _buildTrainingDayView(
+    BuildContext context,
+    TrainingSessionProvider provider,
+    TrainingDay day,
+  ) {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16.0),
       child: Column(
@@ -93,8 +100,12 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
       ),
     );
   }
-  
-  Widget _buildSessionHeader(BuildContext context, TrainingSessionProvider provider, TrainingDay day) {
+
+  Widget _buildSessionHeader(
+    BuildContext context,
+    TrainingSessionProvider provider,
+    TrainingDay day,
+  ) {
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -106,9 +117,9 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
               children: [
                 Text(
                   'Week ${provider.currentWeek}, Day ${provider.currentDayInWeek}',
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
                 ),
                 _buildSessionStatusBadge(context, provider),
               ],
@@ -129,13 +140,16 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
       ),
     );
   }
-  
-  Widget _buildSessionStatusBadge(BuildContext context, TrainingSessionProvider provider) {
+
+  Widget _buildSessionStatusBadge(
+    BuildContext context,
+    TrainingSessionProvider provider,
+  ) {
     final status = provider.sessionStatus;
     Color backgroundColor;
     Color textColor;
     String label;
-    
+
     switch (status) {
       case SessionStatus.notStarted:
         backgroundColor = Theme.of(context).colorScheme.surfaceContainerHighest;
@@ -158,7 +172,7 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
         label = 'Completed';
         break;
     }
-    
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
@@ -175,13 +189,16 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
       ),
     );
   }
-  
-  Widget _buildCurrentSegmentCard(BuildContext context, TrainingSessionProvider provider) {
+
+  Widget _buildCurrentSegmentCard(
+    BuildContext context,
+    TrainingSessionProvider provider,
+  ) {
     final segment = provider.currentSegment;
     if (segment == null) return const SizedBox.shrink();
-    
+
     final isRunning = segment.type == ActivityType.running;
-    
+
     return Card(
       elevation: 4,
       child: Padding(
@@ -193,9 +210,9 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
                 Icon(
                   isRunning ? Icons.directions_run : Icons.directions_walk,
                   size: 48,
-                  color: isRunning 
-                    ? Theme.of(context).colorScheme.primary
-                    : Theme.of(context).colorScheme.secondary,
+                  color: isRunning
+                      ? Theme.of(context).colorScheme.primary
+                      : Theme.of(context).colorScheme.secondary,
                 ),
                 const SizedBox(width: 16),
                 Expanded(
@@ -204,15 +221,17 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
                     children: [
                       Text(
                         'Current Segment ${provider.currentSegmentIndex + 1}',
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          color: Theme.of(context).colorScheme.onSurfaceVariant,
-                        ),
+                        style: Theme.of(context).textTheme.titleMedium
+                            ?.copyWith(
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onSurfaceVariant,
+                            ),
                       ),
                       Text(
                         isRunning ? 'Running' : 'Walking',
-                        style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
+                        style: Theme.of(context).textTheme.headlineSmall
+                            ?.copyWith(fontWeight: FontWeight.bold),
                       ),
                       Text(
                         'Duration: ${provider.getFormattedTime(segment.durationSeconds)}',
@@ -244,8 +263,11 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
       ),
     );
   }
-  
-  Widget _buildProgressIndicator(BuildContext context, TrainingSessionProvider provider) {
+
+  Widget _buildProgressIndicator(
+    BuildContext context,
+    TrainingSessionProvider provider,
+  ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -265,7 +287,9 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
         const SizedBox(height: 8),
         LinearProgressIndicator(
           value: provider.sessionProgress,
-          backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+          backgroundColor: Theme.of(
+            context,
+          ).colorScheme.surfaceContainerHighest,
           valueColor: AlwaysStoppedAnimation<Color>(
             Theme.of(context).colorScheme.primary,
           ),
@@ -273,10 +297,13 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
       ],
     );
   }
-  
-  Widget _buildSessionControls(BuildContext context, TrainingSessionProvider provider) {
+
+  Widget _buildSessionControls(
+    BuildContext context,
+    TrainingSessionProvider provider,
+  ) {
     final status = provider.sessionStatus;
-    
+
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
@@ -286,7 +313,7 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
             icon: const Icon(Icons.play_arrow),
             label: const Text('Start Session'),
           ),
-        
+
         if (status == SessionStatus.inProgress) ...[
           ElevatedButton.icon(
             onPressed: () => provider.pauseSession(),
@@ -294,14 +321,14 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
             label: const Text('Pause'),
           ),
           FilledButton.icon(
-            onPressed: provider.hasNextSegment 
-              ? () => provider.nextSegment()
-              : () => provider.completeSession(),
+            onPressed: provider.hasNextSegment
+                ? () => provider.nextSegment()
+                : () => provider.completeSession(),
             icon: Icon(provider.hasNextSegment ? Icons.skip_next : Icons.check),
             label: Text(provider.hasNextSegment ? 'Next Segment' : 'Complete'),
           ),
         ],
-        
+
         if (status == SessionStatus.paused) ...[
           FilledButton.icon(
             onPressed: () => provider.resumeSession(),
@@ -314,7 +341,7 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
             label: const Text('Stop'),
           ),
         ],
-        
+
         if (status == SessionStatus.completed)
           FilledButton.icon(
             onPressed: () => provider.stopSession(),
@@ -324,8 +351,12 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
       ],
     );
   }
-  
-  Widget _buildSegmentsList(BuildContext context, TrainingSessionProvider provider, TrainingDay day) {
+
+  Widget _buildSegmentsList(
+    BuildContext context,
+    TrainingSessionProvider provider,
+    TrainingDay day,
+  ) {
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -334,83 +365,98 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
           children: [
             Text(
               'Training Segments',
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 12),
             ...(day.segments?.asMap().entries.map((entry) {
-              final index = entry.key;
-              final segment = entry.value;
-              final isCurrentSegment = index == provider.currentSegmentIndex;
-              final isCompleted = index < provider.currentSegmentIndex;
-              
-              return Container(
-                margin: const EdgeInsets.only(bottom: 8),
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                decoration: BoxDecoration(
-                  color: isCurrentSegment 
-                    ? Theme.of(context).colorScheme.primaryContainer
-                    : isCompleted
-                      ? Theme.of(context).colorScheme.secondaryContainer
-                      : null,
-                  borderRadius: BorderRadius.circular(8),
-                  border: isCurrentSegment
-                    ? Border.all(color: Theme.of(context).colorScheme.primary)
-                    : null,
-                ),
-                child: Row(
-                  children: [
-                    Icon(
-                      isCompleted 
-                        ? Icons.check_circle
-                        : segment.type == ActivityType.running
-                          ? Icons.directions_run
-                          : Icons.directions_walk,
-                      color: isCompleted
-                        ? Theme.of(context).colorScheme.secondary
-                        : segment.type == ActivityType.running
-                          ? Theme.of(context).colorScheme.primary
-                          : Theme.of(context).colorScheme.secondary,
-                      size: 20,
+                  final index = entry.key;
+                  final segment = entry.value;
+                  final isCurrentSegment =
+                      index == provider.currentSegmentIndex;
+                  final isCompleted = index < provider.currentSegmentIndex;
+
+                  return Container(
+                    margin: const EdgeInsets.only(bottom: 8),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 8,
                     ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
-                        '${index + 1}. ${segment.type == ActivityType.running ? 'Run' : 'Walk'} for ${provider.getFormattedTime(segment.durationSeconds)}',
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          fontWeight: isCurrentSegment ? FontWeight.bold : null,
-                          color: isCurrentSegment 
-                            ? Theme.of(context).colorScheme.onPrimaryContainer
-                            : null,
+                    decoration: BoxDecoration(
+                      color: isCurrentSegment
+                          ? Theme.of(context).colorScheme.primaryContainer
+                          : isCompleted
+                          ? Theme.of(context).colorScheme.secondaryContainer
+                          : null,
+                      borderRadius: BorderRadius.circular(8),
+                      border: isCurrentSegment
+                          ? Border.all(
+                              color: Theme.of(context).colorScheme.primary,
+                            )
+                          : null,
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          isCompleted
+                              ? Icons.check_circle
+                              : segment.type == ActivityType.running
+                              ? Icons.directions_run
+                              : Icons.directions_walk,
+                          color: isCompleted
+                              ? Theme.of(context).colorScheme.secondary
+                              : segment.type == ActivityType.running
+                              ? Theme.of(context).colorScheme.primary
+                              : Theme.of(context).colorScheme.secondary,
+                          size: 20,
                         ),
-                      ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            '${index + 1}. ${segment.type == ActivityType.running ? 'Run' : 'Walk'} for ${provider.getFormattedTime(segment.durationSeconds)}',
+                            style: Theme.of(context).textTheme.bodyMedium
+                                ?.copyWith(
+                                  fontWeight: isCurrentSegment
+                                      ? FontWeight.bold
+                                      : null,
+                                  color: isCurrentSegment
+                                      ? Theme.of(
+                                          context,
+                                        ).colorScheme.onPrimaryContainer
+                                      : null,
+                                ),
+                          ),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
-              );
-            }) ?? []),
+                  );
+                }) ??
+                []),
           ],
         ),
       ),
     );
   }
-  
-  Widget _buildNavigationButtons(BuildContext context, TrainingSessionProvider provider) {
+
+  Widget _buildNavigationButtons(
+    BuildContext context,
+    TrainingSessionProvider provider,
+  ) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
         ElevatedButton.icon(
           onPressed: provider.currentWeek > 1 || provider.currentDayInWeek > 1
-            ? () => provider.previousDay()
-            : null,
+              ? () => provider.previousDay()
+              : null,
           icon: const Icon(Icons.chevron_left),
           label: const Text('Previous Day'),
         ),
         ElevatedButton.icon(
           onPressed: provider.currentWeek < 10 || provider.currentDayInWeek < 7
-            ? () => provider.nextDay()
-            : null,
+              ? () => provider.nextDay()
+              : null,
           icon: const Icon(Icons.chevron_right),
           label: const Text('Next Day'),
         ),

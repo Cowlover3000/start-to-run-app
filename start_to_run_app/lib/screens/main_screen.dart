@@ -45,10 +45,7 @@ class _MainScreenState extends State<MainScreen> {
     ];
 
     return Scaffold(
-      body: IndexedStack(
-        index: _currentIndex,
-        children: screens,
-      ),
+      body: IndexedStack(index: _currentIndex, children: screens),
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
         currentIndex: _currentIndex,
@@ -86,7 +83,7 @@ class _MainScreenState extends State<MainScreen> {
 
 class HomePage extends StatefulWidget {
   final VoidCallback onStartTraining;
-  
+
   const HomePage({super.key, required this.onStartTraining});
 
   @override
@@ -103,11 +100,12 @@ class _HomePageState extends State<HomePage> {
         final currentWeek = trainingData.currentWeek;
         final currentDay = trainingData.currentDay;
         final weekProgress = trainingData.currentWeekProgress;
-        
+
         // Check if tomorrow is a rest day
         final tomorrowDay = TrainingProgram.getDay(currentWeek, currentDay + 1);
-        final isTomorrowRestDay = tomorrowDay != null && !tomorrowDay.isTrainingDay;
-        
+        final isTomorrowRestDay =
+            tomorrowDay != null && !tomorrowDay.isTrainingDay;
+
         return Scaffold(
           backgroundColor: Colors.grey.shade50,
           body: SafeArea(
@@ -134,7 +132,9 @@ class _HomePageState extends State<HomePage> {
                           child: CircularProgressIndicator(
                             value: weekProgress,
                             backgroundColor: Colors.grey.shade300,
-                            valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF4CAF50)),
+                            valueColor: const AlwaysStoppedAnimation<Color>(
+                              Color(0xFF4CAF50),
+                            ),
                             strokeWidth: 6,
                           ),
                         ),
@@ -162,9 +162,9 @@ class _HomePageState extends State<HomePage> {
                       ],
                     ),
                   ),
-                  
+
                   const SizedBox(height: 16),
-                  
+
                   // Week description
                   Text(
                     _getWeekDescription(currentWeek),
@@ -174,22 +174,20 @@ class _HomePageState extends State<HomePage> {
                       color: Colors.black87,
                     ),
                   ),
-                  
+
                   const SizedBox(height: 8),
-                  
+
                   Text(
                     _getWeekSubtitle(currentWeek),
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.grey.shade600,
-                    ),
+                    style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
                     textAlign: TextAlign.center,
                   ),
-                  
+
                   const SizedBox(height: 32),
-                  
+
                   // Current Day Card
-                  if (currentTrainingDay != null && currentTrainingDay.isTrainingDay) ...[
+                  if (currentTrainingDay != null &&
+                      currentTrainingDay.isTrainingDay) ...[
                     // Today's Training Card
                     Container(
                       width: double.infinity,
@@ -232,10 +230,13 @@ class _HomePageState extends State<HomePage> {
                             ),
                             textAlign: TextAlign.center,
                           ),
-                          if (currentTrainingDay.totalDurationMinutes != null) ...[
+                          if (currentTrainingDay.totalDurationMinutes !=
+                              null) ...[
                             const SizedBox(height: 4),
                             Text(
-                              trainingData.formatDuration(currentTrainingDay.totalDurationMinutes!),
+                              trainingData.formatDuration(
+                                currentTrainingDay.totalDurationMinutes!,
+                              ),
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 14,
@@ -249,15 +250,24 @@ class _HomePageState extends State<HomePage> {
                             child: ElevatedButton(
                               onPressed: () {
                                 // Initialize session with current training data
-                                final sessionProvider = Provider.of<TrainingSessionProvider>(context, listen: false);
-                                sessionProvider.selectDay(currentWeek, currentDay);
+                                final sessionProvider =
+                                    Provider.of<TrainingSessionProvider>(
+                                      context,
+                                      listen: false,
+                                    );
+                                sessionProvider.selectDay(
+                                  currentWeek,
+                                  currentDay,
+                                );
                                 sessionProvider.startSession();
                                 widget.onStartTraining();
                               },
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Colors.white,
                                 foregroundColor: const Color(0xFFFF5252),
-                                padding: const EdgeInsets.symmetric(vertical: 12),
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 12,
+                                ),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(25),
                                 ),
@@ -274,7 +284,8 @@ class _HomePageState extends State<HomePage> {
                         ],
                       ),
                     ),
-                  ] else if (currentTrainingDay != null && currentTrainingDay.isRestDay) ...[
+                  ] else if (currentTrainingDay != null &&
+                      currentTrainingDay.isRestDay) ...[
                     // Today's Rest Day Card
                     Container(
                       width: double.infinity,
@@ -321,9 +332,9 @@ class _HomePageState extends State<HomePage> {
                       ),
                     ),
                   ],
-                  
+
                   const SizedBox(height: 16),
-                  
+
                   // Progress Summary
                   Container(
                     width: double.infinity,
@@ -383,9 +394,11 @@ class _HomePageState extends State<HomePage> {
                       ],
                     ),
                   ),
-                  
+
                   // Next Training Day Preview (if today is rest day)
-                  if (currentTrainingDay != null && currentTrainingDay.isRestDay && nextTrainingDay != null) ...[
+                  if (currentTrainingDay != null &&
+                      currentTrainingDay.isRestDay &&
+                      nextTrainingDay != null) ...[
                     const SizedBox(height: 16),
                     Container(
                       width: double.infinity,

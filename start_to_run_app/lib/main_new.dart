@@ -96,7 +96,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
 
 class HomePage extends StatefulWidget {
   final VoidCallback onStartTraining;
-  
+
   const HomePage({super.key, required this.onStartTraining});
 
   @override
@@ -115,7 +115,7 @@ class _HomePageState extends State<HomePage> {
     final currentTrainingDay = TrainingProgram.getDay(currentWeek, currentDay);
     final tomorrowDay = TrainingProgram.getDay(currentWeek, currentDay + 1);
     final isTomorrowRestDay = tomorrowDay != null && !tomorrowDay.isTrainingDay;
-    
+
     return Scaffold(
       backgroundColor: Colors.grey.shade50,
       body: SafeArea(
@@ -142,7 +142,9 @@ class _HomePageState extends State<HomePage> {
                       child: CircularProgressIndicator(
                         value: weekProgress,
                         backgroundColor: Colors.grey.shade300,
-                        valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF4CAF50)),
+                        valueColor: const AlwaysStoppedAnimation<Color>(
+                          Color(0xFF4CAF50),
+                        ),
                         strokeWidth: 6,
                       ),
                     ),
@@ -170,9 +172,9 @@ class _HomePageState extends State<HomePage> {
                   ],
                 ),
               ),
-              
+
               const SizedBox(height: 16),
-              
+
               // Week description
               Text(
                 'Week $currentWeek - Uithoudingsvermogen',
@@ -182,21 +184,19 @@ class _HomePageState extends State<HomePage> {
                   color: Colors.black87,
                 ),
               ),
-              
+
               const SizedBox(height: 8),
-              
+
               Text(
                 'Mix van 8tot 8 hardlopen en wandelen',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.grey.shade600,
-                ),
+                style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
               ),
-              
+
               const SizedBox(height: 32),
-              
+
               // Today's Training Card
-              if (currentTrainingDay != null && currentTrainingDay.isTrainingDay) ...[
+              if (currentTrainingDay != null &&
+                  currentTrainingDay.isTrainingDay) ...[
                 Container(
                   width: double.infinity,
                   padding: const EdgeInsets.all(20),
@@ -255,9 +255,9 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
               ],
-              
+
               const SizedBox(height: 24),
-              
+
               // Tomorrow's Rest Day Card (conditional)
               if (isTomorrowRestDay) ...[
                 Container(
@@ -295,10 +295,7 @@ class _HomePageState extends State<HomePage> {
                       SizedBox(height: 8),
                       Text(
                         'Neem een welverdiende pauze!',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 14,
-                        ),
+                        style: TextStyle(color: Colors.white, fontSize: 14),
                         textAlign: TextAlign.center,
                       ),
                     ],
