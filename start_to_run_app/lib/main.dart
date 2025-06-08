@@ -3,12 +3,16 @@ import 'package:provider/provider.dart';
 import 'providers/training_session_provider.dart';
 import 'providers/training_data_provider.dart';
 import 'providers/settings_provider.dart';
+import 'services/notification_service.dart';
 import 'screens/main_screen.dart';
-// TODO: Uncomment these imports when implementing additional features
-// import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-// import 'package:geolocator/geolocator.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  
+  // Initialize notification service
+  final NotificationService notificationService = NotificationService();
+  await notificationService.init();
+  
   runApp(const StartToRunApp());
 }
 
