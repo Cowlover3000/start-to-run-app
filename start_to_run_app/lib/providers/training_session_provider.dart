@@ -9,8 +9,6 @@ enum SessionStatus {
 }
 
 class TrainingSessionProvider extends ChangeNotifier {
-  final TrainingProgram _trainingProgram = TrainingProgram.createFullProgram();
-  
   int _currentWeek = 1;
   int _currentDayInWeek = 1;
   int _currentSegmentIndex = 0;
@@ -21,27 +19,27 @@ class TrainingSessionProvider extends ChangeNotifier {
   Duration _totalPausedTime = Duration.zero;
 
   // Getters
-  TrainingProgram get trainingProgram => _trainingProgram;
   int get currentWeek => _currentWeek;
   int get currentDayInWeek => _currentDayInWeek;
   SessionStatus get sessionStatus => _sessionStatus;
   Duration get elapsedTime => _elapsedTime;
   
   TrainingDay get currentDay {
-    return _trainingProgram.getDay(_currentWeek, _currentDayInWeek);
+    return TrainingProgram.getDay(_currentWeek, _currentDayInWeek)!;
   }
   
   TrainingSegment? get currentSegment {
-    if (currentDay.isRestDay || _currentSegmentIndex >= currentDay.segments.length) {
+    if (currentDay.isRestDay || currentDay.segments == null || _currentSegmentIndex >= currentDay.segments!.length) {
       return null;
     }
-    return currentDay.segments[_currentSegmentIndex];
+    return currentDay.segments![_currentSegmentIndex];
   }
   
   int get currentSegmentIndex => _currentSegmentIndex;
   
   bool get hasNextSegment {
-    return _currentSegmentIndex < currentDay.segments.length - 1;
+    if (currentDay.segments == null) return false;
+    return _currentSegmentIndex < currentDay.segments!.length - 1;
   }
   
   bool get hasPreviousSegment {
@@ -49,8 +47,8 @@ class TrainingSessionProvider extends ChangeNotifier {
   }
   
   double get sessionProgress {
-    if (currentDay.isRestDay) return 1.0;
-    return (_currentSegmentIndex + 1) / currentDay.segments.length;
+    if (currentDay.isRestDay || currentDay.segments == null) return 1.0;
+    return (_currentSegmentIndex + 1) / currentDay.segments!.length;
   }
   
   Duration get totalSessionDuration {
