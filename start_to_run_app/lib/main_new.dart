@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'models/training_program.dart';
+import 'models/training_program_new.dart';
 import 'package:start_to_run_app/screens/active_training_screen.dart';
 import 'package:start_to_run_app/screens/progress_screen.dart';
 import 'package:start_to_run_app/screens/settings_screen.dart';

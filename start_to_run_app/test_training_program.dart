@@ -1,4 +1,4 @@
-import 'lib/models/training_program.dart';
+import 'lib/models/training_program_new.dart';
 
 void main() {
   print('Testing Training Program Data Model...\n');

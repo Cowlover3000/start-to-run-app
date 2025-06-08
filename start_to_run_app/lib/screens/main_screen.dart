@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../models/training_program.dart';
+import '../models/training_program_new.dart';
 import '../providers/training_data_provider.dart';
 import '../providers/training_session_provider.dart';
 import 'active_training_screen.dart';
@@ -235,7 +235,7 @@ class _HomePageState extends State<HomePage> {
                           if (currentTrainingDay.totalDurationMinutes != null) ...[
                             const SizedBox(height: 4),
                             Text(
-                              '${trainingData.formatDuration(currentTrainingDay.totalDurationMinutes!)}',
+                              trainingData.formatDuration(currentTrainingDay.totalDurationMinutes!),
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 14,

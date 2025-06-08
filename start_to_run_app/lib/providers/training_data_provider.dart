@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../models/training_program.dart';
+import '../models/training_program_new.dart';
 
 /// Provider class that manages the training program state
 class TrainingDataProvider extends ChangeNotifier {

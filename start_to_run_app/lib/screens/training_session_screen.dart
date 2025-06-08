@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/training_session_provider.dart';
-import '../models/training_program.dart';
+import '../models/training_program_new.dart';
 
 class TrainingSessionScreen extends StatefulWidget {
   const TrainingSessionScreen({super.key});
@@ -138,7 +138,7 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
     
     switch (status) {
       case SessionStatus.notStarted:
-        backgroundColor = Theme.of(context).colorScheme.surfaceVariant;
+        backgroundColor = Theme.of(context).colorScheme.surfaceContainerHighest;
         textColor = Theme.of(context).colorScheme.onSurfaceVariant;
         label = 'Not Started';
         break;
@@ -265,7 +265,7 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
         const SizedBox(height: 8),
         LinearProgressIndicator(
           value: provider.sessionProgress,
-          backgroundColor: Theme.of(context).colorScheme.surfaceVariant,
+          backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
           valueColor: AlwaysStoppedAnimation<Color>(
             Theme.of(context).colorScheme.primary,
           ),

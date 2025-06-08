@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:start_to_run_app/models/training_program.dart';
+import 'package:start_to_run_app/models/training_program_new.dart';
 
 void main() {
   group('TrainingProgram Data Model Tests', () {
@@ -107,8 +107,8 @@ void main() {
       final invalidDay = TrainingProgram.getDay(15, 1);
       expect(invalidDay, isNull);
       
-      // Test getTrainingDaysOnly
-      final trainingDays = TrainingProgram.getTrainingDaysOnly();
+      // Test getTrainingDaysOnly is replaced with filtering programData
+      final trainingDays = TrainingProgram.programData.where((day) => day.isTrainingDay).toList();
       expect(trainingDays.length, equals(30));
       expect(trainingDays.every((day) => day.isTrainingDay), isTrue);
     });

@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
-import '../models/training_program.dart';
+import '../models/training_program_new.dart';
 import '../services/feedback_service.dart';
 import 'training_data_provider.dart';
 
