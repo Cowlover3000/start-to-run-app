@@ -17,7 +17,6 @@ class TrainingSessionProvider extends ChangeNotifier {
 
   // Track if we've already given warnings for current segment
   bool _warningGiven = false;
-  bool _countdownStarted = false;
 
   // Getters
   int get currentWeek => _trainingDataProvider?.currentWeek ?? 1;
@@ -269,36 +268,16 @@ class TrainingSessionProvider extends ChangeNotifier {
 
     final remainingSeconds = segment.durationSeconds - _currentSegmentElapsed;
 
-    // Give warning at 10 seconds remaining (only once per segment)
-    if (remainingSeconds == 10 && !_warningGiven) {
+    // Give beep sequence at 5 seconds remaining (only once per segment)
+    // This replaces both the old 10-second warning and 3-2-1 countdown
+    if (remainingSeconds == 5 && !_warningGiven) {
       _warningGiven = true;
       _feedbackService.segmentWarningFeedback();
-    }
-
-    // Give countdown beeps for last 3 seconds (only once per second)
-    if (remainingSeconds <= 3 && remainingSeconds > 0 && !_countdownStarted) {
-      _countdownStarted = true;
-      _startCountdown();
-    }
-  }
-
-  void _startCountdown() async {
-    final segment = currentSegment;
-    if (segment == null) return;
-
-    // Beep for 3, 2, 1
-    for (int i = 3; i >= 1; i--) {
-      final remainingSeconds = segment.durationSeconds - _currentSegmentElapsed;
-      if (remainingSeconds == i) {
-        await _feedbackService.countdownFeedback();
-        await Future.delayed(const Duration(milliseconds: 800));
-      }
     }
   }
 
   void _resetSegmentWarnings() {
     _warningGiven = false;
-    _countdownStarted = false;
   }
 
   // Method to update feedback settings
