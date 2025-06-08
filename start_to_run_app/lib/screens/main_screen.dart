@@ -17,6 +17,12 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
   int _currentIndex = 0;
 
+  void switchToHome() {
+    setState(() {
+      _currentIndex = 0; // Home screen index
+    });
+  }
+
   void switchToTraining() {
     setState(() {
       _currentIndex = 1; // Training screen index
@@ -33,7 +39,7 @@ class _MainScreenState extends State<MainScreen> {
   Widget build(BuildContext context) {
     final List<Widget> screens = [
       HomePage(onStartTraining: switchToTraining),
-      const ActiveTrainingScreen(),
+      ActiveTrainingScreen(onStopTraining: switchToHome),
       const ProgressScreen(),
       const SettingsScreen(),
     ];

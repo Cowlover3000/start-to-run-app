@@ -233,7 +233,7 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
                     style: Theme.of(context).textTheme.bodyMedium,
                   ),
                   Text(
-                    'Remaining: ${provider.getFormattedTime(provider.remainingTime)}',
+                    'Remaining: ${provider.getFormattedTime(provider.currentSegmentRemainingTime)}',
                     style: Theme.of(context).textTheme.bodyMedium,
                   ),
                 ],

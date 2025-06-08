@@ -60,6 +60,15 @@ class TrainingSessionProvider extends ChangeNotifier {
   }
   
   int get remainingTime {
+    // Calculate total remaining time for the entire session
+    final totalDuration = totalSessionDuration;
+    if (totalDuration == 0) return 0;
+    final remaining = totalDuration - _elapsedTime;
+    return remaining > 0 ? remaining : 0;
+  }
+
+  int get currentSegmentRemainingTime {
+    // Calculate remaining time for current segment only
     final segment = currentSegment;
     if (segment == null) return 0;
     final remaining = segment.durationSeconds - _currentSegmentElapsed;

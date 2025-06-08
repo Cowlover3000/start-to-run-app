@@ -5,7 +5,9 @@ import '../providers/training_session_provider.dart';
 import '../models/training_program.dart';
 
 class ActiveTrainingScreen extends StatefulWidget {
-  const ActiveTrainingScreen({super.key});
+  final VoidCallback? onStopTraining;
+  
+  const ActiveTrainingScreen({super.key, this.onStopTraining});
 
   @override
   State<ActiveTrainingScreen> createState() => _ActiveTrainingScreenState();
@@ -164,7 +166,7 @@ class _ActiveTrainingScreenState extends State<ActiveTrainingScreen> {
                         
                         // Main Timer Display
                         Text(
-                          _formatTime(sessionProvider.remainingTime),
+                          _formatTime(sessionProvider.currentSegmentRemainingTime),
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 80,
@@ -236,7 +238,7 @@ class _ActiveTrainingScreenState extends State<ActiveTrainingScreen> {
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                trainingData.formatDuration(currentTrainingDay.totalDurationMinutes ?? 0),
+                                _formatTime(sessionProvider.remainingTime),
                                 style: const TextStyle(
                                   color: Colors.white,
                                   fontSize: 16,
@@ -327,7 +329,8 @@ class _ActiveTrainingScreenState extends State<ActiveTrainingScreen> {
                             child: ElevatedButton(
                               onPressed: () {
                                 sessionProvider.stopSession();
-                                Navigator.of(context).pop();
+                                // Use callback to navigate back to home
+                                widget.onStopTraining?.call();
                               },
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Colors.transparent,
@@ -479,7 +482,7 @@ class _ActiveTrainingScreenState extends State<ActiveTrainingScreen> {
                     onPressed: () {
                       Navigator.of(context).pop(); // Close dialog
                       sessionProvider.stopSession(); // Reset session
-                      Navigator.of(context).pop(); // Go back to main screen
+                      widget.onStopTraining?.call(); // Navigate back to home
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF4CAF50),
