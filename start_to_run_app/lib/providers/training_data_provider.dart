@@ -222,6 +222,13 @@ class TrainingDataProvider extends ChangeNotifier {
     return dayNames[dayNumber - 1];
   }
 
+  /// Get the training day type (Training Day or Rest Day)
+  String getDayType(int week, int day) {
+    final trainingDay = TrainingProgram.getDay(week, day);
+    if (trainingDay == null) return 'Unknown';
+    return trainingDay.isTrainingDay ? 'Trainingsdag' : 'Rustdag';
+  }
+
   /// Get formatted duration string
   String formatDuration(int minutes) {
     if (minutes < 60) {

@@ -109,7 +109,7 @@ class _ActiveTrainingScreenState extends State<ActiveTrainingScreen> {
                   Column(
                     children: [
                       Text(
-                        'Week ${trainingData.currentWeek}, Dag ${trainingData.currentDay}',
+                        'Week ${trainingData.currentWeek}, ${trainingData.getDayType(trainingData.currentWeek, trainingData.currentDay)}',
                         style: const TextStyle(
                           color: Colors.white70,
                           fontSize: 16,
@@ -340,9 +340,7 @@ class _ActiveTrainingScreenState extends State<ActiveTrainingScreen> {
                             ),
                             child: ElevatedButton(
                               onPressed: () {
-                                sessionProvider.stopSession();
-                                // Use callback to navigate back to home
-                                widget.onStopTraining?.call();
+                                _showStopConfirmationDialog(context, sessionProvider);
                               },
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Colors.transparent,
@@ -396,6 +394,62 @@ class _ActiveTrainingScreenState extends State<ActiveTrainingScreen> {
     return '${minutes.toString().padLeft(2, '0')}:${remainingSeconds.toString().padLeft(2, '0')}';
   }
 
+  void _showStopConfirmationDialog(
+    BuildContext context,
+    TrainingSessionProvider sessionProvider,
+  ) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text(
+            'Training stoppen?',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          content: const Text(
+            'Weet je zeker dat je je training wilt stoppen? Je voortgang wordt niet opgeslagen.',
+            style: TextStyle(fontSize: 16),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close dialog
+              },
+              child: const Text(
+                'Annuleren',
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.grey,
+                ),
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close dialog
+                sessionProvider.stopSession();
+                widget.onStopTraining?.call(); // Navigate back to home
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFFFF5252),
+                foregroundColor: Colors.white,
+              ),
+              child: const Text(
+                'Stoppen',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   void _showCompletionDialog(
     BuildContext context,
     TrainingDataProvider trainingData,
@@ -439,7 +493,7 @@ class _ActiveTrainingScreenState extends State<ActiveTrainingScreen> {
                 const SizedBox(height: 8),
 
                 Text(
-                  'Je hebt Week ${trainingData.currentWeek}, Dag ${trainingData.currentDay} voltooid!',
+                  'Je hebt Week ${trainingData.currentWeek}, ${trainingData.getDayType(trainingData.currentWeek, trainingData.currentDay)} voltooid!',
                   style: TextStyle(fontSize: 16, color: Colors.grey.shade600),
                   textAlign: TextAlign.center,
                 ),

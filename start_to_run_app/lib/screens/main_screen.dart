@@ -149,14 +149,6 @@ class _HomePageState extends State<HomePage> {
                                 color: Colors.grey,
                               ),
                             ),
-                            Text(
-                              'Dag $currentDay',
-                              style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black87,
-                              ),
-                            ),
                           ],
                         ),
                       ],
@@ -205,14 +197,6 @@ class _HomePageState extends State<HomePage> {
                       ),
                       child: Column(
                         children: [
-                          Text(
-                            'Vandaag - ${trainingData.getDutchDayName(currentDay)}',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
                           const Text(
                             'Trainingsdag',
                             style: TextStyle(
@@ -304,7 +288,7 @@ class _HomePageState extends State<HomePage> {
                       child: Column(
                         children: [
                           Text(
-                            'Vandaag - ${trainingData.getDutchDayName(currentDay)}',
+                            trainingData.getDayType(currentWeek, currentDay),
                             style: const TextStyle(
                               color: Colors.white,
                               fontSize: 14,
@@ -421,7 +405,7 @@ class _HomePageState extends State<HomePage> {
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            'Week ${nextTrainingDay.weekNumber}, Dag ${nextTrainingDay.dayNumber}',
+                            'Week ${nextTrainingDay.weekNumber}, ${trainingData.getDayType(nextTrainingDay.weekNumber, nextTrainingDay.dayNumber)}',
                             style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
