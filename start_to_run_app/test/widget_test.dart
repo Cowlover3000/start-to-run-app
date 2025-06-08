@@ -10,12 +10,19 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:start_to_run_app/main.dart';
 
 void main() {
-  testWidgets('App starts with welcome message', (WidgetTester tester) async {
+  testWidgets('Home Screen displays correctly', (WidgetTester tester) async {
     // Build our app and trigger a frame.
     await tester.pumpWidget(const StartToRunApp());
 
-    // Verify that our welcome message is displayed.
-    expect(find.text('Welcome to Start to Run!'), findsOneWidget);
-    expect(find.text('Start to Run'), findsOneWidget);
+    // Verify that our Home Screen elements are displayed.
+    expect(find.text('Home Screen'), findsOneWidget);
+    expect(find.text('Week 3'), findsOneWidget);
+    expect(find.text('Day 1'), findsOneWidget);
+    expect(find.text('Week 3 - Uithoudingsvermogen'), findsOneWidget);
+    expect(find.text('Vandaag'), findsOneWidget);
+    expect(find.text('Trainingsdag'), findsOneWidget);
+    expect(find.text('Start Training'), findsOneWidget);
+    expect(find.text('Morgen'), findsOneWidget);
+    expect(find.text('Rustdag'), findsOneWidget);
   });
 }
