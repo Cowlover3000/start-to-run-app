@@ -10,7 +10,7 @@ class ProgressScreen extends StatelessWidget {
     return Consumer<TrainingDataProvider>(
       builder: (context, trainingData, child) {
         final stats = trainingData.getProgressStats();
-        
+
         return Scaffold(
           backgroundColor: Colors.grey.shade50,
           appBar: AppBar(
@@ -63,9 +63,9 @@ class ProgressScreen extends StatelessWidget {
                     ),
                   ],
                 ),
-                
+
                 const SizedBox(height: 32),
-                
+
                 // Programma Voortgang Title
                 const Text(
                   'Programma Voortgang',
@@ -75,20 +75,24 @@ class ProgressScreen extends StatelessWidget {
                     color: Colors.black87,
                   ),
                 ),
-                
+
                 const SizedBox(height: 20),
-                
+
                 // Week Navigation Buttons
                 Wrap(
                   spacing: 12,
                   runSpacing: 12,
                   children: List.generate(10, (index) {
                     final weekNumber = index + 1;
-                    final isCurrentWeek = weekNumber == trainingData.currentWeek;
-                    final isCompletedWeek = weekNumber < trainingData.currentWeek;
-                    
+                    final isCurrentWeek =
+                        weekNumber == trainingData.currentWeek;
+                    final isCompletedWeek =
+                        weekNumber < trainingData.currentWeek;
+
                     return SizedBox(
-                      width: (MediaQuery.of(context).size.width - 40 - 24) / 3, // 3 buttons per row with spacing
+                      width:
+                          (MediaQuery.of(context).size.width - 40 - 24) /
+                          3, // 3 buttons per row with spacing
                       child: ElevatedButton(
                         onPressed: () {
                           // Navigate to the selected week
@@ -101,24 +105,24 @@ class ProgressScreen extends StatelessWidget {
                           );
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: isCurrentWeek 
-                              ? const Color(0xFF4CAF50) 
+                          backgroundColor: isCurrentWeek
+                              ? const Color(0xFF4CAF50)
                               : isCompletedWeek
-                                  ? const Color(0xFF81C784)
-                                  : Colors.white,
+                              ? const Color(0xFF81C784)
+                              : Colors.white,
                           foregroundColor: isCurrentWeek || isCompletedWeek
-                              ? Colors.white 
+                              ? Colors.white
                               : Colors.black87,
                           elevation: isCurrentWeek ? 4 : 2,
                           padding: const EdgeInsets.symmetric(vertical: 16),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
                             side: BorderSide(
-                              color: isCurrentWeek 
-                                  ? const Color(0xFF4CAF50) 
+                              color: isCurrentWeek
+                                  ? const Color(0xFF4CAF50)
                                   : isCompletedWeek
-                                      ? const Color(0xFF81C784)
-                                      : Colors.grey.shade300,
+                                  ? const Color(0xFF81C784)
+                                  : Colors.grey.shade300,
                               width: 1,
                             ),
                           ),
@@ -130,17 +134,14 @@ class ProgressScreen extends StatelessWidget {
                               'Week $weekNumber',
                               style: TextStyle(
                                 fontSize: 14,
-                                fontWeight: isCurrentWeek 
-                                    ? FontWeight.bold 
+                                fontWeight: isCurrentWeek
+                                    ? FontWeight.bold
                                     : FontWeight.w500,
                               ),
                             ),
                             if (isCompletedWeek) ...[
                               const SizedBox(height: 2),
-                              const Icon(
-                                Icons.check_circle,
-                                size: 16,
-                              ),
+                              const Icon(Icons.check_circle, size: 16),
                             ],
                           ],
                         ),
@@ -148,9 +149,9 @@ class ProgressScreen extends StatelessWidget {
                     );
                   }),
                 ),
-                
+
                 const SizedBox(height: 32),
-                
+
                 // Weekly Progress Section
                 Container(
                   width: double.infinity,
@@ -181,7 +182,9 @@ class ProgressScreen extends StatelessWidget {
                       LinearProgressIndicator(
                         value: trainingData.currentWeekProgress,
                         backgroundColor: Colors.grey.shade200,
-                        valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF4CAF50)),
+                        valueColor: const AlwaysStoppedAnimation<Color>(
+                          Color(0xFF4CAF50),
+                        ),
                         minHeight: 8,
                         borderRadius: BorderRadius.circular(4),
                       ),
@@ -209,7 +212,7 @@ class ProgressScreen extends StatelessWidget {
                     ],
                   ),
                 ),
-                
+
                 const SizedBox(height: 24),
               ],
             ),
@@ -236,10 +239,7 @@ class ProgressScreen extends StatelessWidget {
             offset: const Offset(0, 2),
           ),
         ],
-        border: Border.all(
-          color: Colors.grey.shade200,
-          width: 1,
-        ),
+        border: Border.all(color: Colors.grey.shade200, width: 1),
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,

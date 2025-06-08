@@ -340,7 +340,10 @@ class _ActiveTrainingScreenState extends State<ActiveTrainingScreen> {
                             ),
                             child: ElevatedButton(
                               onPressed: () {
-                                _showStopConfirmationDialog(context, sessionProvider);
+                                _showStopConfirmationDialog(
+                                  context,
+                                  sessionProvider,
+                                );
                               },
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Colors.transparent,
@@ -404,10 +407,7 @@ class _ActiveTrainingScreenState extends State<ActiveTrainingScreen> {
         return AlertDialog(
           title: const Text(
             'Training stoppen?',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-            ),
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
           content: const Text(
             'Weet je zeker dat je je training wilt stoppen? Je voortgang wordt niet opgeslagen.',
@@ -420,10 +420,7 @@ class _ActiveTrainingScreenState extends State<ActiveTrainingScreen> {
               },
               child: const Text(
                 'Annuleren',
-                style: TextStyle(
-                  fontSize: 16,
-                  color: Colors.grey,
-                ),
+                style: TextStyle(fontSize: 16, color: Colors.grey),
               ),
             ),
             ElevatedButton(
@@ -438,10 +435,7 @@ class _ActiveTrainingScreenState extends State<ActiveTrainingScreen> {
               ),
               child: const Text(
                 'Stoppen',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                ),
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
               ),
             ),
           ],

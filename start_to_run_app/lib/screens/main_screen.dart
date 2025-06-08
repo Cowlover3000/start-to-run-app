@@ -37,9 +37,10 @@ class _MainScreenState extends State<MainScreen> {
   Widget build(BuildContext context) {
     return Consumer<TrainingSessionProvider>(
       builder: (context, sessionProvider, child) {
-        final isTrainingActive = sessionProvider.sessionStatus == SessionStatus.inProgress || 
-                                 sessionProvider.sessionStatus == SessionStatus.paused;
-        
+        final isTrainingActive =
+            sessionProvider.sessionStatus == SessionStatus.inProgress ||
+            sessionProvider.sessionStatus == SessionStatus.paused;
+
         final List<Widget> screens = [
           HomePage(onStartTraining: switchToTraining),
           const ProgressScreen(),
