@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../models/training_program_new.dart';
 import '../providers/training_data_provider.dart';
 import '../providers/training_session_provider.dart';
 import 'active_training_screen.dart';
@@ -24,9 +23,8 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   void switchToTraining() {
-    setState(() {
-      _currentIndex = 1; // Training screen index
-    });
+    // Training is now handled through focused experience, no tab switching needed
+    // The training screen will be shown automatically when training is active
   }
 
   void _onItemTapped(int index) {
@@ -37,46 +35,56 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final List<Widget> screens = [
-      HomePage(onStartTraining: switchToTraining),
-      ActiveTrainingScreen(onStopTraining: switchToHome),
-      const ProgressScreen(),
-      const SettingsScreen(),
-    ];
+    return Consumer<TrainingSessionProvider>(
+      builder: (context, sessionProvider, child) {
+        final isTrainingActive = sessionProvider.sessionStatus == SessionStatus.inProgress || 
+                                 sessionProvider.sessionStatus == SessionStatus.paused;
+        
+        final List<Widget> screens = [
+          HomePage(onStartTraining: switchToTraining),
+          const ProgressScreen(),
+          const SettingsScreen(),
+        ];
 
-    return Scaffold(
-      body: IndexedStack(index: _currentIndex, children: screens),
-      bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed,
-        currentIndex: _currentIndex,
-        onTap: _onItemTapped,
-        selectedItemColor: const Color(0xFF4CAF50),
-        unselectedItemColor: Colors.grey.shade600,
-        backgroundColor: Colors.white,
-        elevation: 8,
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home_outlined),
-            activeIcon: Icon(Icons.home),
-            label: 'Home',
+        // If training is active, force the user to stay on the training screen
+        // and hide the navigation bar to create a focused experience
+        if (isTrainingActive) {
+          return Scaffold(
+            body: ActiveTrainingScreen(onStopTraining: switchToHome),
+          );
+        }
+
+        // Normal navigation when training is not active
+        return Scaffold(
+          body: IndexedStack(index: _currentIndex, children: screens),
+          bottomNavigationBar: BottomNavigationBar(
+            type: BottomNavigationBarType.fixed,
+            currentIndex: _currentIndex,
+            onTap: _onItemTapped,
+            selectedItemColor: const Color(0xFF4CAF50),
+            unselectedItemColor: Colors.grey.shade600,
+            backgroundColor: Colors.white,
+            elevation: 8,
+            items: const [
+              BottomNavigationBarItem(
+                icon: Icon(Icons.home_outlined),
+                activeIcon: Icon(Icons.home),
+                label: 'Home',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.trending_up_outlined),
+                activeIcon: Icon(Icons.trending_up),
+                label: 'Voortgang',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.settings_outlined),
+                activeIcon: Icon(Icons.settings),
+                label: 'Instellingen',
+              ),
+            ],
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.directions_run_outlined),
-            activeIcon: Icon(Icons.directions_run),
-            label: 'Training',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.trending_up_outlined),
-            activeIcon: Icon(Icons.trending_up),
-            label: 'Voortgang',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.settings_outlined),
-            activeIcon: Icon(Icons.settings),
-            label: 'Instellingen',
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 }
@@ -100,11 +108,6 @@ class _HomePageState extends State<HomePage> {
         final currentWeek = trainingData.currentWeek;
         final currentDay = trainingData.currentDay;
         final weekProgress = trainingData.currentWeekProgress;
-
-        // Check if tomorrow is a rest day
-        final tomorrowDay = TrainingProgram.getDay(currentWeek, currentDay + 1);
-        final isTomorrowRestDay =
-            tomorrowDay != null && !tomorrowDay.isTrainingDay;
 
         return Scaffold(
           backgroundColor: Colors.grey.shade50,
