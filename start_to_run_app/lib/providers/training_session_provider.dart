@@ -1,5 +1,7 @@
+import 'dart:async';
 import 'package:flutter/foundation.dart';
 import '../models/training_program.dart';
+import 'training_data_provider.dart';
 
 enum SessionStatus {
   notStarted,
@@ -9,37 +11,38 @@ enum SessionStatus {
 }
 
 class TrainingSessionProvider extends ChangeNotifier {
-  int _currentWeek = 1;
-  int _currentDayInWeek = 1;
   int _currentSegmentIndex = 0;
   SessionStatus _sessionStatus = SessionStatus.notStarted;
-  Duration _elapsedTime = Duration.zero;
-  DateTime? _sessionStartTime;
-  DateTime? _pauseStartTime;
-  Duration _totalPausedTime = Duration.zero;
+  int _elapsedTime = 0; // in seconds
+  int _currentSegmentElapsed = 0; // elapsed time in current segment
+  Timer? _timer;
+  TrainingDataProvider? _trainingDataProvider;
 
   // Getters
-  int get currentWeek => _currentWeek;
-  int get currentDayInWeek => _currentDayInWeek;
+  int get currentWeek => _trainingDataProvider?.currentWeek ?? 1;
+  int get currentDayInWeek => _trainingDataProvider?.currentDay ?? 1;
   SessionStatus get sessionStatus => _sessionStatus;
-  Duration get elapsedTime => _elapsedTime;
+  int get elapsedTime => _elapsedTime;
+  bool get isRunning => _sessionStatus == SessionStatus.inProgress;
   
-  TrainingDay get currentDay {
-    return TrainingProgram.getDay(_currentWeek, _currentDayInWeek)!;
+  TrainingDay? get currentDay {
+    return TrainingProgram.getDay(currentWeek, currentDayInWeek);
   }
   
   TrainingSegment? get currentSegment {
-    if (currentDay.isRestDay || currentDay.segments == null || _currentSegmentIndex >= currentDay.segments!.length) {
+    final day = currentDay;
+    if (day == null || day.isRestDay || day.segments == null || _currentSegmentIndex >= day.segments!.length) {
       return null;
     }
-    return currentDay.segments![_currentSegmentIndex];
+    return day.segments![_currentSegmentIndex];
   }
   
   int get currentSegmentIndex => _currentSegmentIndex;
   
   bool get hasNextSegment {
-    if (currentDay.segments == null) return false;
-    return _currentSegmentIndex < currentDay.segments!.length - 1;
+    final day = currentDay;
+    if (day?.segments == null) return false;
+    return _currentSegmentIndex < day!.segments!.length - 1;
   }
   
   bool get hasPreviousSegment {
@@ -47,115 +50,131 @@ class TrainingSessionProvider extends ChangeNotifier {
   }
   
   double get sessionProgress {
-    if (currentDay.isRestDay || currentDay.segments == null) return 1.0;
-    return (_currentSegmentIndex + 1) / currentDay.segments!.length;
+    final day = currentDay;
+    if (day == null || day.isRestDay || day.segments == null) return 1.0;
+    return (_currentSegmentIndex + 1) / day.segments!.length;
   }
   
-  Duration get totalSessionDuration {
-    return Duration(seconds: currentDay.totalDurationSeconds);
+  int get totalSessionDuration {
+    return currentDay?.totalDurationSeconds ?? 0;
   }
   
-  Duration get remainingTime {
-    final total = totalSessionDuration;
-    final elapsed = _elapsedTime;
-    final remaining = total - elapsed;
-    return remaining.isNegative ? Duration.zero : remaining;
+  int get remainingTime {
+    final segment = currentSegment;
+    if (segment == null) return 0;
+    final remaining = segment.durationSeconds - _currentSegmentElapsed;
+    return remaining > 0 ? remaining : 0;
+  }
+
+  // Set the training data provider reference
+  void setTrainingDataProvider(TrainingDataProvider trainingDataProvider) {
+    _trainingDataProvider = trainingDataProvider;
   }
 
   // Navigation methods
   void selectDay(int week, int dayInWeek) {
-    if (week >= 1 && week <= 10 && dayInWeek >= 1 && dayInWeek <= 7) {
-      _currentWeek = week;
-      _currentDayInWeek = dayInWeek;
+    if (_trainingDataProvider != null && week >= 1 && week <= 10 && dayInWeek >= 1 && dayInWeek <= 7) {
+      _trainingDataProvider!.goToWeek(week);
+      _trainingDataProvider!.goToDay(dayInWeek);
       _resetSession();
       notifyListeners();
     }
   }
   
   void nextWeek() {
-    if (_currentWeek < 10) {
-      _currentWeek++;
-      _currentDayInWeek = 1;
+    if (_trainingDataProvider != null && currentWeek < 10) {
+      _trainingDataProvider!.goToWeek(currentWeek + 1);
       _resetSession();
       notifyListeners();
     }
   }
   
   void previousWeek() {
-    if (_currentWeek > 1) {
-      _currentWeek--;
-      _currentDayInWeek = 1;
+    if (_trainingDataProvider != null && currentWeek > 1) {
+      _trainingDataProvider!.goToWeek(currentWeek - 1);
       _resetSession();
       notifyListeners();
     }
   }
   
   void nextDay() {
-    if (_currentDayInWeek < 7) {
-      _currentDayInWeek++;
-    } else if (_currentWeek < 10) {
-      _currentWeek++;
-      _currentDayInWeek = 1;
+    if (_trainingDataProvider != null) {
+      if (currentDayInWeek < 7) {
+        _trainingDataProvider!.goToDay(currentDayInWeek + 1);
+      } else if (currentWeek < 10) {
+        _trainingDataProvider!.goToWeek(currentWeek + 1);
+        _trainingDataProvider!.goToDay(1);
+      }
+      _resetSession();
+      notifyListeners();
     }
-    _resetSession();
-    notifyListeners();
   }
   
   void previousDay() {
-    if (_currentDayInWeek > 1) {
-      _currentDayInWeek--;
-    } else if (_currentWeek > 1) {
-      _currentWeek--;
-      _currentDayInWeek = 7;
+    if (_trainingDataProvider != null) {
+      if (currentDayInWeek > 1) {
+        _trainingDataProvider!.goToDay(currentDayInWeek - 1);
+      } else if (currentWeek > 1) {
+        _trainingDataProvider!.goToWeek(currentWeek - 1);
+        _trainingDataProvider!.goToDay(7);
+      }
+      _resetSession();
+      notifyListeners();
     }
-    _resetSession();
-    notifyListeners();
   }
 
   // Session control methods
   void startSession() {
-    if (currentDay.isRestDay) return;
+    final day = currentDay;
+    if (day == null || day.isRestDay) return;
     
     _sessionStatus = SessionStatus.inProgress;
-    _sessionStartTime = DateTime.now();
-    _pauseStartTime = null;
-    _totalPausedTime = Duration.zero;
-    _elapsedTime = Duration.zero;
+    _elapsedTime = 0;
+    _currentSegmentElapsed = 0;
     _currentSegmentIndex = 0;
+    _startTimer();
     notifyListeners();
   }
   
   void pauseSession() {
     if (_sessionStatus == SessionStatus.inProgress) {
       _sessionStatus = SessionStatus.paused;
-      _pauseStartTime = DateTime.now();
+      _stopTimer();
       notifyListeners();
     }
   }
   
   void resumeSession() {
-    if (_sessionStatus == SessionStatus.paused && _pauseStartTime != null) {
+    if (_sessionStatus == SessionStatus.paused) {
       _sessionStatus = SessionStatus.inProgress;
-      _totalPausedTime += DateTime.now().difference(_pauseStartTime!);
-      _pauseStartTime = null;
+      _startTimer();
       notifyListeners();
     }
   }
   
   void stopSession() {
     _sessionStatus = SessionStatus.notStarted;
+    _stopTimer();
     _resetSession();
     notifyListeners();
   }
   
   void completeSession() {
     _sessionStatus = SessionStatus.completed;
+    _stopTimer();
+    
+    // Mark the day as completed in the training data provider and advance to next day
+    if (_trainingDataProvider != null) {
+      _trainingDataProvider!.completeCurrentDay(); // This marks complete AND advances to next day
+    }
+    
     notifyListeners();
   }
   
   void nextSegment() {
     if (hasNextSegment) {
       _currentSegmentIndex++;
+      _currentSegmentElapsed = 0;
       notifyListeners();
     } else {
       completeSession();
@@ -165,39 +184,62 @@ class TrainingSessionProvider extends ChangeNotifier {
   void previousSegment() {
     if (hasPreviousSegment) {
       _currentSegmentIndex--;
+      _currentSegmentElapsed = 0;
       notifyListeners();
     }
   }
   
-  void updateElapsedTime() {
-    if (_sessionStatus == SessionStatus.inProgress && _sessionStartTime != null) {
-      final now = DateTime.now();
-      _elapsedTime = now.difference(_sessionStartTime!) - _totalPausedTime;
+  void _startTimer() {
+    _stopTimer(); // Stop any existing timer
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      _elapsedTime++;
+      _currentSegmentElapsed++;
+      
+      // Check if current segment is completed
+      final segment = currentSegment;
+      if (segment != null && _currentSegmentElapsed >= segment.durationSeconds) {
+        if (hasNextSegment) {
+          nextSegment();
+        } else {
+          completeSession();
+        }
+      }
+      
       notifyListeners();
-    }
+    });
+  }
+  
+  void _stopTimer() {
+    _timer?.cancel();
+    _timer = null;
   }
   
   void _resetSession() {
     _sessionStatus = SessionStatus.notStarted;
     _currentSegmentIndex = 0;
-    _elapsedTime = Duration.zero;
-    _sessionStartTime = null;
-    _pauseStartTime = null;
-    _totalPausedTime = Duration.zero;
+    _elapsedTime = 0;
+    _currentSegmentElapsed = 0;
+    _stopTimer();
+  }
+  
+  @override
+  void dispose() {
+    _stopTimer();
+    super.dispose();
   }
   
   // Helper methods
-  String getFormattedTime(Duration duration) {
-    final minutes = duration.inMinutes;
-    final seconds = duration.inSeconds % 60;
-    return '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
+  String getFormattedTime(int seconds) {
+    final minutes = seconds ~/ 60;
+    final remainingSeconds = seconds % 60;
+    return '${minutes.toString().padLeft(2, '0')}:${remainingSeconds.toString().padLeft(2, '0')}';
   }
   
   String getCurrentSegmentDescription() {
     final segment = currentSegment;
     if (segment == null) return 'Rest Day';
     
-    final activityName = segment.activityType == ActivityType.running ? 'Run' : 'Walk';
-    return '$activityName for ${getFormattedTime(segment.duration)}';
+    final activityName = segment.activityType == ActivityType.running ? 'Hardlopen' : 'Wandelen';
+    return '$activityName voor ${getFormattedTime(segment.durationSeconds)}';
   }
 }

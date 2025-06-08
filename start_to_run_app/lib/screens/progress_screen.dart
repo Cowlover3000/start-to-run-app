@@ -1,129 +1,296 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../providers/training_data_provider.dart';
 
 class ProgressScreen extends StatelessWidget {
   const ProgressScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.grey.shade50,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        title: const Text(
-          'Voortgang',
-          style: TextStyle(
-            color: Colors.black87,
-            fontSize: 18,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        centerTitle: true,
-        iconTheme: const IconThemeData(color: Colors.black87),
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Top Metrics Section
-            GridView.count(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              crossAxisCount: 2,
-              crossAxisSpacing: 16,
-              mainAxisSpacing: 16,
-              childAspectRatio: 1.3,
-              children: [
-                _buildMetricCard(
-                  title: 'Trainingen\nVoltooid',
-                  value: '15',
-                  color: const Color(0xFF4CAF50),
-                ),
-                _buildMetricCard(
-                  title: 'Beste Hardloop\nTijd',
-                  value: '5:23',
-                  color: const Color(0xFF2196F3),
-                ),
-                _buildMetricCard(
-                  title: 'Succes\nPercentage',
-                  value: '87%',
-                  color: const Color(0xFFFF9800),
-                ),
-                _buildMetricCard(
-                  title: 'Huidige\nWeek',
-                  value: '3',
-                  color: const Color(0xFF9C27B0),
-                ),
-              ],
-            ),
-            
-            const SizedBox(height: 32),
-            
-            // Programma Voortgang Title
-            const Text(
-              'Programma Voortgang',
+    return Consumer<TrainingDataProvider>(
+      builder: (context, trainingData, child) {
+        final stats = trainingData.getProgressStats();
+        
+        return Scaffold(
+          backgroundColor: Colors.grey.shade50,
+          appBar: AppBar(
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            title: const Text(
+              'Voortgang',
               style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
                 color: Colors.black87,
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
               ),
             ),
-            
-            const SizedBox(height: 20),
-            
-            // Week Navigation Buttons
-            Wrap(
-              spacing: 12,
-              runSpacing: 12,
-              children: List.generate(10, (index) {
-                final weekNumber = index + 1;
-                final isCurrentWeek = weekNumber == 3; // Week 3 is current
+            centerTitle: true,
+            iconTheme: const IconThemeData(color: Colors.black87),
+          ),
+          body: SingleChildScrollView(
+            padding: const EdgeInsets.all(20.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Top Metrics Section
+                GridView.count(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  crossAxisCount: 2,
+                  crossAxisSpacing: 16,
+                  mainAxisSpacing: 16,
+                  childAspectRatio: 1.3,
+                  children: [
+                    _buildMetricCard(
+                      title: 'Trainingen\nVoltooid',
+                      value: '${stats['completedTrainingDays']}',
+                      color: const Color(0xFF4CAF50),
+                    ),
+                    _buildMetricCard(
+                      title: 'Programma\nVoortgang',
+                      value: '${(stats['overallProgress'] * 100).round()}%',
+                      color: const Color(0xFF2196F3),
+                    ),
+                    _buildMetricCard(
+                      title: 'Huidige\nReeks',
+                      value: '${stats['currentStreak']}',
+                      color: const Color(0xFFFF9800),
+                    ),
+                    _buildMetricCard(
+                      title: 'Huidige\nWeek',
+                      value: '${stats['currentWeek']}',
+                      color: const Color(0xFF9C27B0),
+                    ),
+                  ],
+                ),
                 
-                return SizedBox(
-                  width: (MediaQuery.of(context).size.width - 40 - 24) / 3, // 3 buttons per row with spacing
-                  child: ElevatedButton(
-                    onPressed: () {
-                      // TODO: Navigate to week details or update current week
-                      print('Week $weekNumber selected');
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: isCurrentWeek 
-                          ? const Color(0xFF4CAF50) 
-                          : Colors.white,
-                      foregroundColor: isCurrentWeek 
-                          ? Colors.white 
-                          : Colors.black87,
-                      elevation: isCurrentWeek ? 4 : 2,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        side: BorderSide(
-                          color: isCurrentWeek 
+                const SizedBox(height: 32),
+                
+                // Programma Voortgang Title
+                const Text(
+                  'Programma Voortgang',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87,
+                  ),
+                ),
+                
+                const SizedBox(height: 20),
+                
+                // Week Navigation Buttons
+                Wrap(
+                  spacing: 12,
+                  runSpacing: 12,
+                  children: List.generate(10, (index) {
+                    final weekNumber = index + 1;
+                    final isCurrentWeek = weekNumber == trainingData.currentWeek;
+                    final isCompletedWeek = weekNumber < trainingData.currentWeek;
+                    
+                    return SizedBox(
+                      width: (MediaQuery.of(context).size.width - 40 - 24) / 3, // 3 buttons per row with spacing
+                      child: ElevatedButton(
+                        onPressed: () {
+                          // Navigate to the selected week
+                          trainingData.goToWeek(weekNumber);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('Navigated to Week $weekNumber'),
+                              duration: const Duration(seconds: 2),
+                            ),
+                          );
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: isCurrentWeek 
                               ? const Color(0xFF4CAF50) 
-                              : Colors.grey.shade300,
-                          width: 1,
+                              : isCompletedWeek
+                                  ? const Color(0xFF81C784)
+                                  : Colors.white,
+                          foregroundColor: isCurrentWeek || isCompletedWeek
+                              ? Colors.white 
+                              : Colors.black87,
+                          elevation: isCurrentWeek ? 4 : 2,
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            side: BorderSide(
+                              color: isCurrentWeek 
+                                  ? const Color(0xFF4CAF50) 
+                                  : isCompletedWeek
+                                      ? const Color(0xFF81C784)
+                                      : Colors.grey.shade300,
+                              width: 1,
+                            ),
+                          ),
+                        ),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              'Week $weekNumber',
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: isCurrentWeek 
+                                    ? FontWeight.bold 
+                                    : FontWeight.w500,
+                              ),
+                            ),
+                            if (isCompletedWeek) ...[
+                              const SizedBox(height: 2),
+                              const Icon(
+                                Icons.check_circle,
+                                size: 16,
+                              ),
+                            ],
+                          ],
                         ),
                       ),
-                    ),
-                    child: Text(
-                      'Week $weekNumber',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: isCurrentWeek 
-                            ? FontWeight.bold 
-                            : FontWeight.w500,
+                    );
+                  }),
+                ),
+                
+                const SizedBox(height: 32),
+                
+                // Weekly Progress Section
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.08),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
                       ),
-                    ),
+                    ],
                   ),
-                );
-              }),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Week ${trainingData.currentWeek} Voortgang',
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black87,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      LinearProgressIndicator(
+                        value: trainingData.currentWeekProgress,
+                        backgroundColor: Colors.grey.shade200,
+                        valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF4CAF50)),
+                        minHeight: 8,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      const SizedBox(height: 12),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            '${trainingData.completedTrainingDaysThisWeek}/${trainingData.totalTrainingDaysThisWeek} trainingen voltooid',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.grey.shade600,
+                            ),
+                          ),
+                          Text(
+                            '${(trainingData.currentWeekProgress * 100).round()}%',
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF4CAF50),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                
+                const SizedBox(height: 24),
+                
+                // Test Progress Buttons (for demo purposes)
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: Colors.blue.shade50,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: Colors.blue.shade200),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Demo Controls',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black87,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: [
+                          ElevatedButton(
+                            onPressed: () {
+                              trainingData.completeCurrentDay();
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('Current day marked as completed!'),
+                                  duration: Duration(seconds: 2),
+                                ),
+                              );
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFF4CAF50),
+                              foregroundColor: Colors.white,
+                            ),
+                            child: const Text('Complete Today'),
+                          ),
+                          ElevatedButton(
+                            onPressed: () {
+                              trainingData.advanceToNextDay();
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFF2196F3),
+                              foregroundColor: Colors.white,
+                            ),
+                            child: const Text('Next Day'),
+                          ),
+                          ElevatedButton(
+                            onPressed: () {
+                              trainingData.resetProgress();
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('Progress reset to beginning'),
+                                  duration: Duration(seconds: 2),
+                                ),
+                              );
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFFFF5722),
+                              foregroundColor: Colors.white,
+                            ),
+                            child: const Text('Reset'),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                
+                const SizedBox(height: 24),
+              ],
             ),
-            
-            const SizedBox(height: 24),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 

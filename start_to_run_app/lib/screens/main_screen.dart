@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../models/training_program.dart';
+import '../providers/training_data_provider.dart';
+import '../providers/training_session_provider.dart';
 import 'active_training_screen.dart';
 import 'progress_screen.dart';
 import 'settings_screen.dart';
@@ -85,211 +88,398 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  // Placeholder values - will be replaced with actual user progress later
-  final int currentWeek = 3;
-  final int currentDay = 1;
-  final double weekProgress = 0.43; // 3/7 = 0.43
-
   @override
   Widget build(BuildContext context) {
-    // Get current training day data
-    final currentTrainingDay = TrainingProgram.getDay(currentWeek, currentDay);
-    final tomorrowDay = TrainingProgram.getDay(currentWeek, currentDay + 1);
-    final isTomorrowRestDay = tomorrowDay != null && !tomorrowDay.isTrainingDay;
-    
-    return Scaffold(
-      backgroundColor: Colors.grey.shade50,
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(20.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              // Top Section - Week/Day & Progress Indicator
-              Container(
-                width: 120,
-                height: 120,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.grey.shade100,
-                  border: Border.all(color: Colors.grey.shade300, width: 2),
-                ),
-                child: Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    SizedBox(
-                      width: 100,
-                      height: 100,
-                      child: CircularProgressIndicator(
-                        value: weekProgress,
-                        backgroundColor: Colors.grey.shade300,
-                        valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF4CAF50)),
-                        strokeWidth: 6,
-                      ),
+    return Consumer<TrainingDataProvider>(
+      builder: (context, trainingData, child) {
+        final currentTrainingDay = trainingData.currentTrainingDay;
+        final nextTrainingDay = trainingData.nextTrainingDay;
+        final currentWeek = trainingData.currentWeek;
+        final currentDay = trainingData.currentDay;
+        final weekProgress = trainingData.currentWeekProgress;
+        
+        // Check if tomorrow is a rest day
+        final tomorrowDay = TrainingProgram.getDay(currentWeek, currentDay + 1);
+        final isTomorrowRestDay = tomorrowDay != null && !tomorrowDay.isTrainingDay;
+        
+        return Scaffold(
+          backgroundColor: Colors.grey.shade50,
+          body: SafeArea(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(20.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  // Top Section - Week/Day & Progress Indicator
+                  Container(
+                    width: 120,
+                    height: 120,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.grey.shade100,
+                      border: Border.all(color: Colors.grey.shade300, width: 2),
                     ),
-                    Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
+                    child: Stack(
+                      alignment: Alignment.center,
                       children: [
-                        Text(
-                          'Week $currentWeek',
-                          style: const TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500,
-                            color: Colors.grey,
+                        SizedBox(
+                          width: 100,
+                          height: 100,
+                          child: CircularProgressIndicator(
+                            value: weekProgress,
+                            backgroundColor: Colors.grey.shade300,
+                            valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF4CAF50)),
+                            strokeWidth: 6,
                           ),
                         ),
-                        Text(
-                          'Day $currentDay',
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black87,
-                          ),
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              'Week $currentWeek',
+                              style: const TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.grey,
+                              ),
+                            ),
+                            Text(
+                              'Dag $currentDay',
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black87,
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),
-                  ],
-                ),
-              ),
-              
-              const SizedBox(height: 16),
-              
-              // Week description
-              Text(
-                'Week $currentWeek - Uithoudingsvermogen',
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.black87,
-                ),
-              ),
-              
-              const SizedBox(height: 8),
-              
-              Text(
-                'Mix van 8tot 8 hardlopen en wandelen',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.grey.shade600,
-                ),
-              ),
-              
-              const SizedBox(height: 32),
-              
-              // Today's Training Card
-              if (currentTrainingDay != null && currentTrainingDay.isTrainingDay) ...[
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFFF5252),
-                    borderRadius: BorderRadius.circular(16),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.1),
-                        blurRadius: 8,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
                   ),
-                  child: Column(
-                    children: [
-                      const Text(
-                        'Vandaag',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                        ),
+                  
+                  const SizedBox(height: 16),
+                  
+                  // Week description
+                  Text(
+                    _getWeekDescription(currentWeek),
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black87,
+                    ),
+                  ),
+                  
+                  const SizedBox(height: 8),
+                  
+                  Text(
+                    _getWeekSubtitle(currentWeek),
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.grey.shade600,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  
+                  const SizedBox(height: 32),
+                  
+                  // Current Day Card
+                  if (currentTrainingDay != null && currentTrainingDay.isTrainingDay) ...[
+                    // Today's Training Card
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFFF5252),
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.1),
+                            blurRadius: 8,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
                       ),
-                      const Text(
-                        'Trainingsdag',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton(
-                          onPressed: widget.onStartTraining,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.white,
-                            foregroundColor: const Color(0xFFFF5252),
-                            padding: const EdgeInsets.symmetric(vertical: 12),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(25),
+                      child: Column(
+                        children: [
+                          Text(
+                            'Vandaag - ${trainingData.getDutchDayName(currentDay)}',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
                             ),
                           ),
-                          child: const Text(
-                            'Start Training',
+                          const Text(
+                            'Trainingsdag',
                             style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
+                              color: Colors.white,
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
                             ),
                           ),
-                        ),
+                          const SizedBox(height: 8),
+                          Text(
+                            currentTrainingDay.description,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 12,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                          if (currentTrainingDay.totalDurationMinutes != null) ...[
+                            const SizedBox(height: 4),
+                            Text(
+                              '${trainingData.formatDuration(currentTrainingDay.totalDurationMinutes!)}',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                          const SizedBox(height: 16),
+                          SizedBox(
+                            width: double.infinity,
+                            child: ElevatedButton(
+                              onPressed: () {
+                                // Initialize session with current training data
+                                final sessionProvider = Provider.of<TrainingSessionProvider>(context, listen: false);
+                                sessionProvider.selectDay(currentWeek, currentDay);
+                                sessionProvider.startSession();
+                                widget.onStartTraining();
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.white,
+                                foregroundColor: const Color(0xFFFF5252),
+                                padding: const EdgeInsets.symmetric(vertical: 12),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(25),
+                                ),
+                              ),
+                              child: const Text(
+                                'Start Training',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
-                    ],
+                    ),
+                  ] else if (currentTrainingDay != null && currentTrainingDay.isRestDay) ...[
+                    // Today's Rest Day Card
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF4CAF50),
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.1),
+                            blurRadius: 8,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        children: [
+                          Text(
+                            'Vandaag - ${trainingData.getDutchDayName(currentDay)}',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          const Text(
+                            'Rustdag',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            currentTrainingDay.description,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 14,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                  
+                  const SizedBox(height: 16),
+                  
+                  // Progress Summary
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: Colors.grey.shade200),
+                    ),
+                    child: Column(
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  '${trainingData.completedTrainingDays}',
+                                  style: const TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                    color: Color(0xFF4CAF50),
+                                  ),
+                                ),
+                                Text(
+                                  'Trainingen voltooid',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.grey.shade600,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                Text(
+                                  '${((trainingData.overallProgress) * 100).round()}%',
+                                  style: const TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                    color: Color(0xFF4CAF50),
+                                  ),
+                                ),
+                                Text(
+                                  'Programma voltooid',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.grey.shade600,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-              ],
-              
-              const SizedBox(height: 24),
-              
-              // Tomorrow's Rest Day Card (conditional)
-              if (isTomorrowRestDay) ...[
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF4CAF50),
-                    borderRadius: BorderRadius.circular(16),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.1),
-                        blurRadius: 8,
-                        offset: const Offset(0, 4),
+                  
+                  // Next Training Day Preview (if today is rest day)
+                  if (currentTrainingDay != null && currentTrainingDay.isRestDay && nextTrainingDay != null) ...[
+                    const SizedBox(height: 16),
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: Colors.grey.shade200),
                       ),
-                    ],
-                  ),
-                  child: const Column(
-                    children: [
-                      Text(
-                        'Morgen',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                        ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Volgende training',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                              color: Colors.grey.shade600,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            'Week ${nextTrainingDay.weekNumber}, Dag ${nextTrainingDay.dayNumber}',
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black87,
+                            ),
+                          ),
+                          Text(
+                            nextTrainingDay.description,
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.grey.shade600,
+                            ),
+                          ),
+                        ],
                       ),
-                      Text(
-                        'Rustdag',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      SizedBox(height: 8),
-                      Text(
-                        'Neem een welverdiende pauze!',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 14,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ],
+                    ),
+                  ],
+                ],
+              ),
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
+  }
+
+  String _getWeekDescription(int week) {
+    switch (week) {
+      case 1:
+        return 'Week 1 - Eerste stappen';
+      case 2:
+        return 'Week 2 - Langere intervallen';
+      case 3:
+        return 'Week 3 - Uithoudingsvermogen';
+      case 4:
+        return 'Week 4 - Stamina opbouwen';
+      case 5:
+        return 'Week 5 - Doorlopend hardlopen';
+      case 6:
+        return 'Week 6 - Langere sessies';
+      case 7:
+        return 'Week 7 - Meer kilometers';
+      case 8:
+        return 'Week 8 - Grote mijlpaal';
+      case 9:
+        return 'Week 9 - Bijna daar';
+      case 10:
+        return 'Week 10 - Finale week';
+      default:
+        return 'Week $week';
+    }
+  }
+
+  String _getWeekSubtitle(int week) {
+    switch (week) {
+      case 1:
+        return 'Alterneren tussen 1 min hardlopen en 2 min wandelen';
+      case 2:
+        return 'Langere hardloopintervallen van 2 minuten';
+      case 3:
+        return 'Opbouwen naar 3 minuten hardlopen';
+      case 4:
+        return 'Uitgebreide 5-minuten hardloopsessies';
+      case 5:
+        return 'Begin van 8-minuten doorlopend hardlopen';
+      case 6:
+        return '10 minuten aaneengesloten hardlopen';
+      case 7:
+        return 'Opbouwen naar 15-20 minuten hardlopen';
+      case 8:
+        return '20+ minuten doorlopend hardlopen';
+      case 9:
+        return '25 minuten non-stop hardlopen';
+      case 10:
+        return '30 minuten doorlopend hardlopen - je bent nu een hardloper!';
+      default:
+        return 'Ga verder met je hardlooptraject';
+    }
   }
 }
