@@ -119,7 +119,7 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
               style: Theme.of(context).textTheme.bodyLarge,
             ),
             Text(
-              '${day.segments.length} segments',
+              '${day.segments?.length ?? 0} segments',
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                 color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
@@ -257,7 +257,7 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
               style: Theme.of(context).textTheme.titleMedium,
             ),
             Text(
-              '${provider.currentSegmentIndex + 1} / ${provider.currentDay.segments.length}',
+              '${provider.currentSegmentIndex + 1} / ${provider.currentDay.segments?.length ?? 0}',
               style: Theme.of(context).textTheme.bodyMedium,
             ),
           ],
@@ -339,7 +339,7 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
               ),
             ),
             const SizedBox(height: 12),
-            ...day.segments.asMap().entries.map((entry) {
+            ...(day.segments?.asMap().entries.map((entry) {
               final index = entry.key;
               final segment = entry.value;
               final isCurrentSegment = index == provider.currentSegmentIndex;
@@ -389,7 +389,7 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
                   ],
                 ),
               );
-            }).toList(),
+            }) ?? []),
           ],
         ),
       ),
