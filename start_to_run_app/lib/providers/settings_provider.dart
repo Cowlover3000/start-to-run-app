@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../services/notification_service.dart';
 import '../services/feedback_service.dart';
+import '../models/training_program_new.dart';
 
 class SettingsProvider with ChangeNotifier {
   bool _soundSignals = true;
@@ -143,6 +144,7 @@ class SettingsProvider with ChangeNotifier {
 
     // If training reminders are active and notifications are enabled, reschedule with the new time
     if (_notifications && _trainingReminders) {
+      // Use the basic scheduler for now - this will be updated when progress changes
       _scheduleTrainingReminder();
     }
 
@@ -196,6 +198,49 @@ class SettingsProvider with ChangeNotifier {
       title: 'Tijd voor je training! 🏃‍♂️',
       body: 'Vergeet je dagelijkse hardloop-/wandeltraining niet. Je kunt het!',
     );
+  }
+
+  // Schedule training reminder with specific training day info
+  Future<void> scheduleTrainingReminderWithProgress({
+    required int currentWeek,
+    required int currentDay,
+  }) async {
+    if (!_notifications || !_trainingReminders) {
+      print(
+        'Skipping notification scheduling - notifications: $_notifications, reminders: $_trainingReminders',
+      );
+      return;
+    }
+
+    final trainingDay = TrainingProgram.getDay(currentWeek, currentDay);
+
+    String title;
+    String body;
+
+    if (trainingDay?.isTrainingDay == true) {
+      title = 'Tijd voor je training! 🏃‍♂️';
+      body =
+          'Week $currentWeek, Dag $currentDay - ${trainingDay?.description ?? "Trainingsdag"}';
+    } else {
+      title = 'Rustdag vandaag! 😌';
+      body =
+          'Week $currentWeek, Dag $currentDay - Neem een welverdiende pauze!';
+    }
+
+    print(
+      'Scheduling notification for Week $currentWeek, Day $currentDay at ${_trainingReminderTime.hour}:${_trainingReminderTime.minute.toString().padLeft(2, '0')}',
+    );
+    print('Title: $title');
+    print('Body: $body');
+
+    await _notificationService.scheduleDailyTrainingReminder(
+      id: _trainingReminderNotificationId,
+      time: _trainingReminderTime,
+      title: title,
+      body: body,
+    );
+
+    print('Notification scheduled successfully');
   }
 
   // Schedule rest day reminder notification

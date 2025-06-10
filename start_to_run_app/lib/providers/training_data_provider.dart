@@ -13,12 +13,20 @@ class TrainingDataProvider extends ChangeNotifier {
   ); // 70 total days (10 weeks * 7 days)
   bool _isLoaded = false;
 
+  // Callback for when progress changes (for notification updates)
+  Function(int week, int day)? _onProgressChanged;
+
   // Getters
   int get currentWeek => _currentWeek;
   int get currentDay => _currentDay;
   int get completedTrainingDays => _completedTrainingDays;
   List<bool> get completedDays => _completedDays;
   bool get isLoaded => _isLoaded;
+
+  /// Set callback for progress changes
+  void setOnProgressChanged(Function(int week, int day) callback) {
+    _onProgressChanged = callback;
+  }
 
   /// Load saved training progress from device storage
   Future<void> loadProgress() async {
@@ -160,6 +168,10 @@ class TrainingDataProvider extends ChangeNotifier {
       _currentDay = 1;
     }
     saveProgress(); // Save after advancing
+    _onProgressChanged?.call(
+      _currentWeek,
+      _currentDay,
+    ); // Notify about progress change
     notifyListeners();
   }
 
@@ -169,6 +181,10 @@ class TrainingDataProvider extends ChangeNotifier {
       _currentWeek = week;
       _currentDay = 1;
       saveProgress(); // Save after navigation
+      _onProgressChanged?.call(
+        _currentWeek,
+        _currentDay,
+      ); // Notify about progress change
       notifyListeners();
     }
   }
@@ -178,6 +194,10 @@ class TrainingDataProvider extends ChangeNotifier {
     if (day >= 1 && day <= 7) {
       _currentDay = day;
       saveProgress(); // Save after navigation
+      _onProgressChanged?.call(
+        _currentWeek,
+        _currentDay,
+      ); // Notify about progress change
       notifyListeners();
     }
   }

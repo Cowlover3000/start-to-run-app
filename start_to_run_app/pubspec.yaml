@@ -31,10 +31,10 @@ dependencies:
   shared_preferences: ^2.2.3
   
   # Local notifications for reminders and training alerts
-  flutter_local_notifications: ^17.0.0
+  flutter_local_notifications: ^19.2.1
   
   # Timezone support for notification scheduling
-  timezone: ^0.9.2
+  timezone: ^0.10.1
   
   # Location services for GPS tracking during runs
   geolocator: ^12.0.0

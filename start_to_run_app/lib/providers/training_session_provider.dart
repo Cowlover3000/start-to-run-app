@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import '../models/training_program_new.dart';
 import '../services/feedback_service.dart';
+import '../services/notification_service.dart';
 import 'training_data_provider.dart';
 
 enum SessionStatus { notStarted, inProgress, paused, completed }
@@ -14,6 +15,7 @@ class TrainingSessionProvider extends ChangeNotifier {
   Timer? _timer;
   TrainingDataProvider? _trainingDataProvider;
   final FeedbackService _feedbackService = FeedbackService();
+  final NotificationService _notificationService = NotificationService();
 
   // Track if we've already given warnings for current segment
   bool _warningGiven = false;
@@ -182,6 +184,14 @@ class TrainingSessionProvider extends ChangeNotifier {
 
     // Trigger completion feedback
     _feedbackService.sessionCompletionFeedback();
+
+    // Send completion notification
+    final totalDurationMinutes = (totalSessionDuration / 60).round();
+    _notificationService.showTrainingCompletionNotification(
+      week: currentWeek,
+      day: currentDayInWeek,
+      durationMinutes: totalDurationMinutes,
+    );
 
     // Mark the day as completed in the training data provider and advance to next day
     if (_trainingDataProvider != null) {

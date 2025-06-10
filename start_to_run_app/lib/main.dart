@@ -88,6 +88,23 @@ class StartToRunApp extends StatelessWidget {
                   soundEnabled: settingsProvider.soundSignals,
                   hapticEnabled: settingsProvider.hapticFeedback,
                 );
+
+                // Set up notification callback for progress changes
+                trainingDataProvider.setOnProgressChanged((week, day) {
+                  settingsProvider.scheduleTrainingReminderWithProgress(
+                    currentWeek: week,
+                    currentDay: day,
+                  );
+                });
+
+                // Schedule initial notification if data is loaded
+                if (trainingDataProvider.isLoaded) {
+                  settingsProvider.scheduleTrainingReminderWithProgress(
+                    currentWeek: trainingDataProvider.currentWeek,
+                    currentDay: trainingDataProvider.currentDay,
+                  );
+                }
+
                 return trainingSessionProvider!;
               },
         ),
