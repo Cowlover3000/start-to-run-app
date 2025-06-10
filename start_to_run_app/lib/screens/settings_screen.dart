@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/settings_provider.dart';
+import '../providers/training_data_provider.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -359,7 +360,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   context,
                   listen: false,
                 );
+                final trainingDataProvider = Provider.of<TrainingDataProvider>(
+                  context,
+                  listen: false,
+                );
+
+                // Reset both settings and training progress
                 await settingsProvider.resetAllData();
+                await trainingDataProvider.resetProgress();
+
                 if (context.mounted) {
                   Navigator.of(context).pop();
                   ScaffoldMessenger.of(context).showSnackBar(

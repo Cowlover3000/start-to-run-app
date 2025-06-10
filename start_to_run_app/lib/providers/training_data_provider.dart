@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/training_program_new.dart';
+import '../services/persistence_service.dart';
 
 /// Provider class that manages the training program state
 class TrainingDataProvider extends ChangeNotifier {
@@ -10,12 +11,53 @@ class TrainingDataProvider extends ChangeNotifier {
     70,
     false,
   ); // 70 total days (10 weeks * 7 days)
+  bool _isLoaded = false;
 
   // Getters
   int get currentWeek => _currentWeek;
   int get currentDay => _currentDay;
   int get completedTrainingDays => _completedTrainingDays;
   List<bool> get completedDays => _completedDays;
+  bool get isLoaded => _isLoaded;
+
+  /// Load saved training progress from device storage
+  Future<void> loadProgress() async {
+    try {
+      final savedData = await PersistenceService.loadTrainingProgress();
+
+      if (savedData != null) {
+        _currentWeek = savedData['currentWeek'];
+        _currentDay = savedData['currentDay'];
+        _completedTrainingDays = savedData['completedTrainingDays'];
+        _completedDays = List<bool>.from(savedData['completedDays']);
+        print('Progress loaded: Week $_currentWeek, Day $_currentDay');
+      } else {
+        print('No saved progress found - starting fresh');
+      }
+    } catch (e) {
+      print('Error loading progress: $e');
+      // Keep default values if loading fails
+    } finally {
+      _isLoaded = true;
+      notifyListeners();
+    }
+  }
+
+  /// Save current training progress to device storage
+  Future<void> saveProgress() async {
+    if (!_isLoaded) return; // Don't save until we've loaded first
+
+    try {
+      await PersistenceService.saveTrainingProgress(
+        currentWeek: _currentWeek,
+        currentDay: _currentDay,
+        completedTrainingDays: _completedTrainingDays,
+        completedDays: _completedDays,
+      );
+    } catch (e) {
+      print('Error saving progress: $e');
+    }
+  }
 
   /// Get the current training day object
   TrainingDay? get currentTrainingDay {
@@ -98,6 +140,7 @@ class TrainingDataProvider extends ChangeNotifier {
         _completedTrainingDays++;
       }
 
+      saveProgress(); // Save after marking completion
       notifyListeners();
     }
   }
@@ -116,6 +159,7 @@ class TrainingDataProvider extends ChangeNotifier {
       _currentWeek++;
       _currentDay = 1;
     }
+    saveProgress(); // Save after advancing
     notifyListeners();
   }
 
@@ -124,6 +168,7 @@ class TrainingDataProvider extends ChangeNotifier {
     if (week >= 1 && week <= TrainingProgram.totalWeeks) {
       _currentWeek = week;
       _currentDay = 1;
+      saveProgress(); // Save after navigation
       notifyListeners();
     }
   }
@@ -132,6 +177,7 @@ class TrainingDataProvider extends ChangeNotifier {
   void goToDay(int day) {
     if (day >= 1 && day <= 7) {
       _currentDay = day;
+      saveProgress(); // Save after navigation
       notifyListeners();
     }
   }
@@ -143,11 +189,15 @@ class TrainingDataProvider extends ChangeNotifier {
   }
 
   /// Reset all progress (for testing or restart)
-  void resetProgress() {
+  Future<void> resetProgress() async {
     _currentWeek = 1;
     _currentDay = 1;
     _completedTrainingDays = 0;
     _completedDays = List.filled(70, false);
+
+    // Clear saved data
+    await PersistenceService.clearTrainingProgress();
+    saveProgress(); // Save the reset state
     notifyListeners();
   }
 
@@ -162,6 +212,7 @@ class TrainingDataProvider extends ChangeNotifier {
     _currentDay = day;
     _completedTrainingDays = completedTrainingDays;
     _completedDays = List.from(completedDays);
+    saveProgress(); // Save after setting progress
     notifyListeners();
   }
 

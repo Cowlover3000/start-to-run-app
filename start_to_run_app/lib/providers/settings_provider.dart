@@ -8,7 +8,10 @@ class SettingsProvider with ChangeNotifier {
   bool _hapticFeedback = true;
   bool _notifications = true;
   bool _trainingReminders = true;
-  TimeOfDay _trainingReminderTime = const TimeOfDay(hour: 18, minute: 0); // 6:00 PM
+  TimeOfDay _trainingReminderTime = const TimeOfDay(
+    hour: 18,
+    minute: 0,
+  ); // 6:00 PM
   bool _restDayReminders = false; // Based on UX, initially off
   String _units = 'Metrisch'; // Default to Metric
   bool _gpsTracking = false; // GPS tracking setting
@@ -60,14 +63,17 @@ class SettingsProvider with ChangeNotifier {
     _trainingReminders = prefs.getBool('trainingReminders') ?? true;
     final reminderHour = prefs.getInt('trainingReminderHour') ?? 18;
     final reminderMinute = prefs.getInt('trainingReminderMinute') ?? 0;
-    _trainingReminderTime = TimeOfDay(hour: reminderHour, minute: reminderMinute);
+    _trainingReminderTime = TimeOfDay(
+      hour: reminderHour,
+      minute: reminderMinute,
+    );
     _restDayReminders = prefs.getBool('restDayReminders') ?? false;
     _units = prefs.getString('units') ?? 'Metrisch';
     _gpsTracking = prefs.getBool('gpsTracking') ?? false;
-    
+
     // Schedule notifications based on loaded settings
     _scheduleNotificationsBasedOnSettings();
-    
+
     notifyListeners();
   }
 
@@ -101,7 +107,7 @@ class SettingsProvider with ChangeNotifier {
   void setNotifications(bool value) {
     _notifications = value;
     _saveSetting('notifications', value);
-    
+
     if (!value) {
       // Cancel all notifications if notifications are turned off
       _notificationService.cancelAllNotifications();
@@ -109,22 +115,24 @@ class SettingsProvider with ChangeNotifier {
       // Re-schedule notifications based on current settings if turning back on
       _scheduleNotificationsBasedOnSettings();
     }
-    
+
     notifyListeners();
   }
 
   void setTrainingReminders(bool value) {
     _trainingReminders = value;
     _saveSetting('trainingReminders', value);
-    
+
     if (_notifications) {
       if (value) {
         _scheduleTrainingReminder();
       } else {
-        _notificationService.cancelNotification(_trainingReminderNotificationId);
+        _notificationService.cancelNotification(
+          _trainingReminderNotificationId,
+        );
       }
     }
-    
+
     notifyListeners();
   }
 
@@ -132,19 +140,19 @@ class SettingsProvider with ChangeNotifier {
     _trainingReminderTime = value;
     _saveSetting('trainingReminderHour', value.hour);
     _saveSetting('trainingReminderMinute', value.minute);
-    
+
     // If training reminders are active and notifications are enabled, reschedule with the new time
     if (_notifications && _trainingReminders) {
       _scheduleTrainingReminder();
     }
-    
+
     notifyListeners();
   }
 
   void setRestDayReminders(bool value) {
     _restDayReminders = value;
     _saveSetting('restDayReminders', value);
-    
+
     if (_notifications) {
       if (value) {
         _scheduleRestDayReminder();
@@ -152,7 +160,7 @@ class SettingsProvider with ChangeNotifier {
         _notificationService.cancelNotification(_restDayReminderNotificationId);
       }
     }
-    
+
     notifyListeners();
   }
 
@@ -220,14 +228,26 @@ class SettingsProvider with ChangeNotifier {
     _restDayReminders = false;
     _units = 'Metrisch';
     _gpsTracking = false;
-    
+
     // Update feedback service with default settings
     _updateFeedbackService();
-    
+
     notifyListeners();
-    
+
     // Save default settings again
     await _saveSettingsToDefaults();
+  }
+
+  // Method to reset only training progress (keeping settings)
+  Future<void> resetTrainingProgressOnly() async {
+    // Clear only training progress data
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('current_week');
+    await prefs.remove('current_day');
+    await prefs.remove('completed_training_days');
+    await prefs.remove('completed_days');
+
+    print('Training progress reset successfully');
   }
 
   Future<void> _saveSettingsToDefaults() async {

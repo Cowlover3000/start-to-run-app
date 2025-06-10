@@ -104,14 +104,12 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  // Placeholder values - will be replaced with actual user progress later
-  final int currentWeek = 3;
-  final int currentDay = 1;
-  final double weekProgress = 0.43; // 3/7 = 0.43
-
   @override
   Widget build(BuildContext context) {
     // Get current training day data
+    final currentWeek = 3; // This will be replaced with provider data
+    final currentDay = 1;
+    final weekProgress = 0.43;
     final currentTrainingDay = TrainingProgram.getDay(currentWeek, currentDay);
     final tomorrowDay = TrainingProgram.getDay(currentWeek, currentDay + 1);
     final isTomorrowRestDay = tomorrowDay != null && !tomorrowDay.isTrainingDay;
