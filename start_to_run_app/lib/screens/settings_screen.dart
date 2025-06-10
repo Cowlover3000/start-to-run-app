@@ -69,15 +69,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     subtitle: 'Tijd voor dagelijkse trainingsherinnering',
                     time: settingsProvider.trainingReminderTime,
                     enabled: settingsProvider.notifications,
-                    onTap: settingsProvider.notifications ? () => _selectTime(context) : null,
+                    onTap: settingsProvider.notifications
+                        ? () => _selectTime(context)
+                        : null,
                   );
                 },
               ),
             ],
           ),
-          
+
           const SizedBox(height: 24),
-          
+
           // App Settings Section
           _buildSection(
             title: 'App',
@@ -93,9 +95,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
             ],
           ),
-          
+
           const SizedBox(height: 24),
-          
+
           // About Section
           _buildSection(
             title: 'Over',
@@ -126,9 +128,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
             ],
           ),
-          
+
           const SizedBox(height: 32),
-          
+
           // Reset Progress Button
           Container(
             width: double.infinity,
@@ -148,20 +150,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
               icon: const Icon(Icons.refresh),
               label: const Text(
                 'Voortgang resetten',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                ),
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
               ),
             ),
           ),
-          
+
           const SizedBox(height: 40),
         ],
       ),
     );
   }
-  
+
   Widget _buildSection({
     required String title,
     required List<Widget> children,
@@ -192,14 +191,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
             ],
           ),
-          child: Column(
-            children: children,
-          ),
+          child: Column(children: children),
         ),
       ],
     );
   }
-  
+
   Widget _buildSettingsTile({
     required IconData icon,
     required String title,
@@ -214,11 +211,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           color: Colors.grey.shade100,
           borderRadius: BorderRadius.circular(8),
         ),
-        child: Icon(
-          icon,
-          color: Colors.grey.shade700,
-          size: 20,
-        ),
+        child: Icon(icon, color: Colors.grey.shade700, size: 20),
       ),
       title: Text(
         title,
@@ -230,16 +223,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
       ),
       subtitle: Text(
         subtitle,
-        style: TextStyle(
-          fontSize: 14,
-          color: Colors.grey.shade600,
-        ),
+        style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
       ),
       trailing: trailing,
       onTap: onTap,
     );
   }
-  
+
   Widget _buildTimeTile({
     required IconData icon,
     required String title,
@@ -303,11 +293,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           color: Colors.grey.shade100,
           borderRadius: BorderRadius.circular(8),
         ),
-        child: Icon(
-          icon,
-          color: Colors.grey.shade700,
-          size: 20,
-        ),
+        child: Icon(icon, color: Colors.grey.shade700, size: 20),
       ),
       title: Text(
         title,
@@ -319,10 +305,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       ),
       subtitle: Text(
         subtitle,
-        style: TextStyle(
-          fontSize: 14,
-          color: Colors.grey.shade600,
-        ),
+        style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
       ),
       trailing: Switch(
         value: value,
@@ -333,16 +316,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   Future<void> _selectTime(BuildContext context) async {
-    final settingsProvider = Provider.of<SettingsProvider>(context, listen: false);
+    final settingsProvider = Provider.of<SettingsProvider>(
+      context,
+      listen: false,
+    );
     final TimeOfDay? picked = await showTimePicker(
       context: context,
       initialTime: settingsProvider.trainingReminderTime,
       builder: (context, child) {
         return Theme(
           data: Theme.of(context).copyWith(
-            colorScheme: Theme.of(context).colorScheme.copyWith(
-              primary: const Color(0xFF4CAF50),
-            ),
+            colorScheme: Theme.of(
+              context,
+            ).colorScheme.copyWith(primary: const Color(0xFF4CAF50)),
           ),
           child: child!,
         );
@@ -369,7 +355,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
             TextButton(
               onPressed: () async {
-                final settingsProvider = Provider.of<SettingsProvider>(context, listen: false);
+                final settingsProvider = Provider.of<SettingsProvider>(
+                  context,
+                  listen: false,
+                );
                 await settingsProvider.resetAllData();
                 if (context.mounted) {
                   Navigator.of(context).pop();
@@ -381,9 +370,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   );
                 }
               },
-              style: TextButton.styleFrom(
-                foregroundColor: Colors.red,
-              ),
+              style: TextButton.styleFrom(foregroundColor: Colors.red),
               child: const Text('Reset'),
             ),
           ],
