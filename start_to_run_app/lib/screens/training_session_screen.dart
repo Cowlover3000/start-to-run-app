@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/training_session_provider.dart';
-import '../models/training_program_new.dart';
+import '../models/training_program.dart';
 
 class TrainingSessionScreen extends StatefulWidget {
   const TrainingSessionScreen({super.key});

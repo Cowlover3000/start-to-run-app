@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:start_to_run_app/models/training_program_new.dart';
+import 'package:start_to_run_app/models/training_program.dart';
 
 void main() {
   group('TrainingProgram Data Model Tests', () {
